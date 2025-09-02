@@ -29,5 +29,6 @@ def Era_assistant(Task : str | None)-> str:
     except Exception as e:
         return f"Error: {e}"
 
+''' remove this in production '''
 # if __name__=="__main__":
-#     print(Era_assistant("what is Ai?"),"\nthis is the msg!")# remove this in production
+#     print(Era_assistant("what is Ai?"),"\nthis is the msg!")

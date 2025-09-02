@@ -1,7 +1,8 @@
 from docx import Document
 import PyPDF2
 
-''' this in the CvToSimpleText class working explanation
+''' 
+    this in the CvToSimpleText class working explanation
     in this class, we define methods to extract text from different document formats
     we use the python-docx library to handle .docx files
     we use the PyPDF2 library to handle .pdf files
@@ -14,6 +15,9 @@ class CvToSimpleText():
         then we return the extracted text as a string
     '''
     def extractTextFromDocx(filePath : str|None) -> str:
+        if filePath is None:
+            return
+        
         doc = Document(filePath)
         textParts = []
         seen = set()
@@ -34,11 +38,14 @@ class CvToSimpleText():
         return "\n".join(textParts)
 
     '''
-    this in the extractTextFromPdf function working explanation
-    first we load the PDF document and extract the text from it
-    then we return the extracted text as a string
+        this in the extractTextFromPdf function working explanation
+        first we load the PDF document and extract the text from it
+        then we return the extracted text as a string
     '''
     def extractTextFromPdf(filePath : str|None) -> str:
+        if filePath is None:
+            return
+        
         textParts = []
         seen = set()
 
