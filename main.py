@@ -2,6 +2,7 @@ from Components import CvToText
 from Components import geminiAi
 from Components import VideoToMp3AndVideoConf
 from Components import VoiceTotext
+from Components import QnsAndAnsGetAndChack
 import dotenv
 import os
 
@@ -20,4 +21,7 @@ if __name__=="__main__":
 
     '''test done!'''
     result = VoiceTotext.ListenAudioFromFile("OnlyAudioData\\output_audio.wav" )
+    print(result)
+    
+    result = QnsAndAnsGetAndChack.QuestionAanswerGetAnadCheck.getQuestion(2, "technical", "easy")
     print(result)
