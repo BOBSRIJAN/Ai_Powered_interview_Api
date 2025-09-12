@@ -23,5 +23,5 @@ if __name__=="__main__":
     result = VoiceTotext.ListenAudioFromFile("OnlyAudioData\\output_audio.wav" )
     print(result)
     
-    result = QnsAndAnsGetAndChack.QuestionAanswerGetAnadCheck.getQuestion(2, "technical", "easy")
+    result = QnsAndAnsGetAndChack.QuestionAanswerGetAndCheck.GetQuestion(2, "technical", "easy")
     print(result)

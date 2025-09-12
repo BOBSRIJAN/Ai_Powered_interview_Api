@@ -3,9 +3,13 @@ import dotenv, os
 
 dotenv.load_dotenv()
 
-class QuestionAanswerGetAnadCheck:
+class QuestionAanswerGetAndCheck:
+    """
+        this class content is for get the question and answer from the gemini AI
+        and this class contain the function getQuestion 
+    """
     
-    def getQuestion(numberOfQuestiions : int|None, typesOfQuestion : str|None, Level : str|None) -> str|None:
+    def GetQuestion(numberOfQuestiions : int|None, typesOfQuestion : str|None, Level : str|None) -> str|None:
         """ 
             this in the getQuestion function working explanation,
             In this function it's takes 3 parameter first one is numberOfQuestiions to tell us 
@@ -21,3 +25,20 @@ class QuestionAanswerGetAnadCheck:
                 return response.replace("```", "").replace("json", "")
         except Exception as e:
             return f"Error in getQuestion function : {e}"
+        
+
+    def GheckAnswer(usreQnsAndAns : str|None) -> str:
+        """ 
+            this in the GheckAnswer function working explanation,
+            In this function it's takes 1 parameter first one is usreQnsAndAns to tell us 
+            what user answer and question are and this function return the correct or incorrect
+            in the string format
+        """
+        try:
+            prompt = os.getenv('GheckAnswer')
+            if usreQnsAndAns:
+                prompt += f"{usreQnsAndAns}"
+                response = Era_assistant(prompt)
+                return response.replace("```", "").replace("json", "")
+        except Exception as e:
+            return f"Error in GheckAnswer function : {e}"
