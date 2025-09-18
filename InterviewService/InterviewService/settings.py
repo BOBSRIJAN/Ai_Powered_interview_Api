@@ -18,8 +18,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'ResumeUploadServiceApi',
     'rest_framework',
+    'QuestionsServiceAI',
 ]
 
 MIDDLEWARE = [
@@ -32,7 +32,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'ResumeService.urls'
+ROOT_URLCONF = 'InterviewService.urls'
 
 TEMPLATES = [
     {
@@ -49,7 +49,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'ResumeService.wsgi.application'
+WSGI_APPLICATION = 'InterviewService.wsgi.application'
 
 DATABASES = {
     'default': {
@@ -59,7 +59,7 @@ DATABASES = {
 }
 
 connect(
-    db="ResumeService",
+    db="InterviewService",
     host=os.getenv('MongoDbUrl'),
 )
 

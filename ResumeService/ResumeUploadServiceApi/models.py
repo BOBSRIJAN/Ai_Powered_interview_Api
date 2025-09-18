@@ -1,4 +1,3 @@
-from django.db import models
 import mongoengine as me
 
 class Resume(me.Document):

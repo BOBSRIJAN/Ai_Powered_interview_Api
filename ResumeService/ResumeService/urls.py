@@ -1,5 +1,5 @@
 from django.urls import path, include
 
 urlpatterns = [
-    path('api/', include('ResumeUploadServiceApi.urls')),
+    path('ResumeUploadService/api/V1/', include('ResumeUploadServiceApi.urls')),
 ]
