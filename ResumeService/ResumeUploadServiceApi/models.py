@@ -1,10 +1,18 @@
 import mongoengine as me
 
 class Resume(me.Document):
-    name = me.StringField(required=True, max_length=100)
-    email = me.EmailField(required=True)
-    resumeMetaData = me.StringField(required=True) 
+    userId = me.StringField(required=True)
+    url = me.StringField(required=True)
+    jobDescription = me.StringField(required=True) 
     createdAt = me.DateTimeField()
 
     def __str__(self):
-        return f"{self.name} - {self.email}"
+        return f"{self.userId}"
+
+
+class ResumeAnalyzeMetaData(me.Document):
+    userId = me.StringField(required=True)
+    data = me.StringField(required=True)
+    
+    def __str__(self):
+        return f"{self.userId}"

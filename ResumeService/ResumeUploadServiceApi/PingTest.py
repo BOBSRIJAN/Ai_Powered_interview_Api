@@ -3,7 +3,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 
 def ping_server():
     try:
-        url = "http://127.0.0.1:8000/api/UserList/"
+        url = "http://127.0.0.1:8000/ResumeUploadService/api/V1/UserList/"
         response = requests.get(url)
         print("Pinged:", response.status_code)
     except Exception as e:
