@@ -11,14 +11,15 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     libffi-dev \
     libssl-dev \
-    && rm -rf /var/lib/apt/lists/*
+    portaudio19-dev \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*  # Clean up to reduce image size
 
 # Copy requirements and upgrade pip
-COPY requirements.txt requirements.txt
-RUN pip install --upgrade pip setuptools wheel
+COPY requirements.txt .
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel
 
 # Install Python dependencies
-RUN pip install -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy project code
 COPY . .
