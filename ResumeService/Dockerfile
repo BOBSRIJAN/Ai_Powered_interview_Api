@@ -1,28 +1,34 @@
-# Use official Python 3.12.5 slim image
-FROM python:3.12.5-slim
-
-# Install system dependencies (PortAudio, ffmpeg, build tools)
-RUN apt-get update && \
-    apt-get install -y portaudio19-dev ffmpeg build-essential && \
-    rm -rf /var/lib/apt/lists/*
+FROM python:3.12
 
 # Set working directory
 WORKDIR /app
 
-# Copy project files
-COPY . /app
+# Install system dependencies for building Python packages and multimedia processing
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    python3-dev \
+    ffmpeg \
+    libpq-dev \
+    libffi-dev \
+    libssl-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-# Upgrade pip and install Python dependencies
+# Copy requirements and upgrade pip
+COPY requirements.txt requirements.txt
 RUN pip install --upgrade pip setuptools wheel
+
+# Install Python dependencies
 RUN pip install -r requirements.txt
 
-# Make migrations and migrate database
+# Copy project code
+COPY . .
+
+# Django migrations
 RUN python manage.py makemigrations
 RUN python manage.py migrate
 
-# Expose the port
-ENV PORT=10000
-EXPOSE $PORT
+# Expose port
+EXPOSE 8000
 
-# Start the app with Gunicorn + Uvicorn worker
-CMD ["gunicorn", "ResumeService.asgi:application", "--worker-class", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:$PORT"]
+# Run server with Gunicorn + Uvicorn
+CMD ["gunicorn", "ResumeService.asgi:application", "--worker-class", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:8000"]
