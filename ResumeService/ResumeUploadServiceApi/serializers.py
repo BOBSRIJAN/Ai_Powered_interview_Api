@@ -3,7 +3,7 @@ from .models import Resume
 
 class ResumeSerializer(serializers.Serializer):
     id = serializers.CharField(read_only=True)
-    userId = serializers.CharField(required=True)
+    userid = serializers.CharField(required=True)
     url = serializers.CharField(required=True)
     jobDescription = serializers.CharField(required=True)
     created_at = serializers.DateTimeField(required=False)
