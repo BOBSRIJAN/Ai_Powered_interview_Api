@@ -84,3 +84,5 @@ uvicorn==0.36.0
 watchfiles==1.1.0
 websockets==15.0.1
 xmod==1.8.1
+pipwin
+pyaudio
