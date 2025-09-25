@@ -11,5 +11,5 @@ def ping_server():
 
 def start():
     scheduler = BackgroundScheduler()
-    scheduler.add_job(ping_server, 'interval', minutes=1)
+    scheduler.add_job(ping_server, 'interval', minutes=10)
     scheduler.start()
