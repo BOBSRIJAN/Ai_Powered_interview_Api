@@ -31,7 +31,8 @@ RUN python manage.py migrate
 # Expose port
 EXPOSE 8000
 
-# Run server with Gunicorn + Uvicorn
+# Run server with Gunicorn + Uvicorn without log info 
 # CMD ["gunicorn", "ResumeService.asgi:application", "--worker-class", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:8000"]
 
+# Run server with Gunicorn + Uvicorn with log info
 CMD ["gunicorn", "ResumeService.asgi:application", "--worker-class", "uvicorn.workers.UvicornWorker", "--workers", "2", "--threads", "2", "--bind", "0.0.0.0:8000", "--log-level", "debug", "--access-logfile", "-", "--error-logfile", "-"]
