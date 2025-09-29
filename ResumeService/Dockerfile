@@ -32,4 +32,6 @@ RUN python manage.py migrate
 EXPOSE 8000
 
 # Run server with Gunicorn + Uvicorn
-CMD ["gunicorn", "ResumeService.asgi:application", "--worker-class", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:8000"]
+# CMD ["gunicorn", "ResumeService.asgi:application", "--worker-class", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:8000"]
+
+CMD ["gunicorn", "ResumeService.asgi:application", "--worker-class", "uvicorn.workers.UvicornWorker", "--workers", "2", "--threads", "2", "--bind", "0.0.0.0:8000", "--log-level", "debug", "--access-logfile", "-", "--error-logfile", "-"]

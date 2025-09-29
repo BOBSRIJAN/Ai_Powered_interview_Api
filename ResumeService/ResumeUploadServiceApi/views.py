@@ -2,7 +2,10 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .models import ResumeAnalyzeMetaData
-from .serializers import ResumeSerializer, ResumeAnalyzeMetaDataSerializer
+from .serializers import (
+    ResumeSerializer,
+    ResumeAnalyzeMetaDataSerializer,
+)
 from .Components.LLM import gemini
 from .Components.CvToText import CvToSimpleText
 from .Components.StrToJsonAndJsonToStr import Converter
@@ -21,6 +24,7 @@ def User(request):
         return Response(serializer.data, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 @api_view(['POST'])
 def AnalyzeWithDocument(request):
     if request.method == 'POST':
@@ -34,7 +38,7 @@ def AnalyzeWithDocument(request):
             f.write(response.content)
 
         textData = CvToSimpleText.extractTextFromPdf("ResumeData/downloaded.pdf")
-        textData += f"  {os.getenv('analyze')} this is the job Description{serializer.data['jobDescription']}"
+        textData += f"  {os.getenv('analyzefordoc')} this is the job Description{serializer.data['jobDescription']}"
         Feedback = gemini(textData)
 
         readyToSend = Converter.StrToJson(Feedback.replace("```", "").replace("json", ""))
@@ -48,17 +52,17 @@ def AnalyzeWithDocument(request):
         return Response(readyToSend, status=status.HTTP_200_OK)
     return Response({"error": "Invalid request method"}, status=status.HTTP_400_BAD_REQUEST)
 
+
 @api_view(['POST'])
 def AnalyzeWithJson(request):
     if request.method == 'POST':
-        resumeJsonStr = Converter.JsonToStr(request.data)
-        resumeJsonStr += f"  {os.getenv('analyze')} this is the job Description {request.data['jobDescription']}"
+        resume = Converter.JsonToStr(request.data)
+        resume += f"  {os.getenv('analyzefordoc')} this is the job Description {request.data['jobDescription']}"
         
-        Feedback = gemini(resumeJsonStr)
-        
+        Feedback = gemini(resume)
         readyToSend = Converter.StrToJson(Feedback.replace("```", "").replace("json", ""))
-        readyToSend['userid'] = request.data['userid']
-        
+        readyToSend['userid'] = request.data['resume']["userId"]
+
         ResumeAnalyzeMetaData.objects(userid=readyToSend['userid']).update_one(
             set__Data=Converter.JsonToStr(readyToSend),
             set__createdAt=datetime.utcnow(),
