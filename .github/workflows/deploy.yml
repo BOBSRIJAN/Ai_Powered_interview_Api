@@ -22,7 +22,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/django-backend:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/resumeservice-backend:latest
           build-args: |
             API_KEY=${{ secrets.API_KEY }}
             MONGODBURL=${{ secrets.MONGODBURL }}
