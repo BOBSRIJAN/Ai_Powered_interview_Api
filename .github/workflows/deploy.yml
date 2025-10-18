@@ -1,0 +1,30 @@
+name: Build & Push ResumeService Image
+
+on:
+  push:
+    branches: [ "ResumeService" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push image
+        uses: docker/build-push-action@v5
+        with:
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/django-backend:latest
+          build-args: |
+            API_KEY=${{ secrets.API_KEY }}
+            MONGODBURL=${{ secrets.MONGODBURL }}
+            SECRET_KEY=${{ secrets.SECRET_KEY }}
+            ANALYZEFORDOC=${{ secrets.ANALYZEFORDOC }}
