@@ -1,0 +1,14 @@
+version: "3.9"
+
+services:
+  django_app:
+    image: srijanray/resumeservice-backend:v1.0
+    container_name: srijanray-resumeservice-backend
+    ports:
+      - "8000:8000"
+    environment:
+      SECRET_KEY: ${SECRET_KEY}
+      MONGODBURL: ${MONGODBURL}
+      API_KEY: ${API_KEY}
+      ANALYZEFORDOC: ${ANALYZEFORDOC}
+    restart: always
