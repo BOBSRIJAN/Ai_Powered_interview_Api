@@ -1,22 +1,25 @@
 from rest_framework import serializers
-from .models import StudentInterviewPerformanceData
+from .models import userQuestionMetaData
 
-class StudentInterviewPerformanceDataSerializer(serializers.Serializer):
+class userQuestionMetaDataSerializer(serializers.Serializer):
     id = serializers.CharField(read_only=True)
-    UserId = serializers.CharField(required=True)
-    UserEmail = serializers.EmailField(required=True)
-    UserResult = serializers.CharField(required=True)
+    userid = serializers.CharField(required=True)
+    userquestion = serializers.CharField(required=True)
     created_at = serializers.DateTimeField(required=False)
 
-    def create(self, validated_data):
-        return StudentInterviewPerformanceData(**validated_data).save()
-
-    def update(self, instance, validated_data):
-        for field, value in validated_data.items():
-            setattr(instance, field, value)
-        instance.save()
-        return instance
-
     class Meta:
-        model = StudentInterviewPerformanceData
+        model = userQuestionMetaData
         fields = "__all__"
+        
+class requestDateSerializer(serializers.Serializer):
+    userid = serializers.CharField(required=True)
+    resumeurl = serializers.CharField(required=False)
+    specificquestionrequirement = serializers.BooleanField(default = False)
+    subjectortopic = serializers.ListField(
+        child=serializers.CharField(), required=False, default=[]
+    )
+    numberofquestiion = serializers.IntegerField(required = True)
+    level = serializers.CharField(required=True)
+
+class questionHistorySerializer(serializers.Serializer):
+    userid = serializers.CharField(required=True)
