@@ -63,6 +63,7 @@ jaxlib==0.4.34
 Jinja2==3.1.6
 joblib==1.5.2
 Js2Py==0.74
+kafka-python==2.2.15
 keras==3.11.3
 kiwisolver==1.4.9
 libclang==18.1.1

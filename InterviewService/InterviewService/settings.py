@@ -64,7 +64,7 @@ connect(
     host=os.getenv('MongoDbUrl'),
 )
 
-# Kafka Configuration
+
 KAFKA_BROKER_URL = os.getenv("KAFKA_BROKER_URL", "localhost:9092")
 KAFKA_TOPICS = {
     "video_analysis_request": "videoAnalysisRequest",
@@ -84,7 +84,6 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-
 
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
