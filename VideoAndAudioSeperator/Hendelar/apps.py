@@ -11,4 +11,4 @@ class HendelarConfig(AppConfig):
         try:
             start_kafka_consumer()
         except Exception as e:
-            print(f"⚠️ Failed to start Kafka consumer: {e}")
+            print(f"Failed to start Kafka consumer: {e}")

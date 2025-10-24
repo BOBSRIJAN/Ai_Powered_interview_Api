@@ -17,7 +17,7 @@ def start_kafka_consumer():
 
     thread = threading.Thread(target=_consume_loop, daemon=True)
     thread.start()
-    logger.info("✅ Kafka background consumer thread started.")
+    logger.info("Kafka background consumer thread started.")
 
 
 def _consume_loop():
@@ -40,19 +40,19 @@ def _consume_loop():
 
         for message in consumer:
             data = message.value
-            logger.info(f"📩 Received message: {data}")
+            logger.info(f"Received message: {data}")
 
             try:
                 response = requests.post(api_url, json=data)
                 if response.status_code == 201:
-                    logger.info("✅ Data processed successfully.")
+                    logger.info("Data processed successfully.")
                 else:
-                    logger.error(f"❌ Failed: {response.status_code}, retrying...")
+                    logger.error(f"Failed: {response.status_code}, retrying...")
                     time.sleep(5)
 
             except Exception as e:
-                logger.error(f"⚠️ Error sending data: {e}")
+                logger.error(f"Error sending data: {e}")
                 time.sleep(5)
 
     except Exception as e:
-        logger.critical(f"🔥 Kafka consumer crashed: {e}")
+        logger.critical(f"Kafka consumer crashed: {e}")

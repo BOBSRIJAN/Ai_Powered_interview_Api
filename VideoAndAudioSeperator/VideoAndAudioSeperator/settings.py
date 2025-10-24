@@ -72,6 +72,10 @@ KAFKA_TOPICS = {
 KAFKA_CONSUMER_GROUP = "video-analysis-group"
 APP_PORT = 8001
 
+KAFKA_TOPICS_2 = {
+    "AudioAndVideoRequest": "AudioAndVideoRequestTopic",
+}
+
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
