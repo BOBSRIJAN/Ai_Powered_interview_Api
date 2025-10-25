@@ -69,7 +69,7 @@ KAFKA_TOPICS = {
     "video_analysis_request": "videoAnalysisRequest",
 }
 
-KAFKA_CONSUMER_GROUP = "video-analysis-group"
+KAFKA_CONSUMER_GROUP = "VideoAndAudioSeperator-group"
 APP_PORT = 8001
 
 KAFKA_TOPICS_2 = {
