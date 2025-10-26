@@ -31,6 +31,6 @@ def uplodeAudioAndVideo(VideoFileName: str | None, AudioFileName: str | None) ->
     )
     dataDict = {
         "Videourl" : video_response['url'],
-        "Audio" : audio_response['url']
+        "Audiourl" : audio_response['url']
     }
     return dataDict

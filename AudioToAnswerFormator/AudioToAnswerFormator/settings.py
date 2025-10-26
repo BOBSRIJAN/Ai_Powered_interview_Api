@@ -73,6 +73,10 @@ KAFKA_TOPICS = {
 KAFKA_CONSUMER_GROUP = "Audio-analysis-group"
 APP_PORT = 8002
 
+KAFKA_TOPICS_3 = {
+    "userAnswer": "UserAnswerTextTopic",
+}
+
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',

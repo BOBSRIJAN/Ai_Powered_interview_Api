@@ -5,3 +5,4 @@ class VideoAnalysisRequestSerializer(serializers.Serializer):
     userid = serializers.CharField(required=True)
     question = serializers.CharField(required=True)
     videourl = serializers.CharField(required=True)
+    totalnumberofquestion = serializers.IntegerField(required=True)

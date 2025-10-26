@@ -29,7 +29,15 @@ def taskHendelar(request) -> Response:
     
     if not links:
         print("Failed to upload files to Cloudinary.")
-        
+    
+    links.update(
+        {
+            'userid': data['userid'],
+            'question': data['question'],
+            'totalnumberofquestion': data['totalnumberofquestion']
+        }
+    )
+    
     print("Links obtained from Cloudinary:")
     send_to_kafka(topic_key="AudioAndVideoRequest", data=links)
     print("Links sent to Kafka successfully!")
