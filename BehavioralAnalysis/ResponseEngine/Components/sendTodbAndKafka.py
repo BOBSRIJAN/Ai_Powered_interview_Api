@@ -1,25 +1,25 @@
 from .kafkaProducer import send_to_kafka
-from Formator.models import UserQuestion
+from ResponseEngine.models import UserQuestionBehavioralAnalysis
 import json
 
 def save_or_update_user_if_user_question_answer_session_is_done_send_to_kafka(data, topic_key):
     userid = data.get("userid")
     question = data.get("question")
     questionno = data.get("questionno")
-    answer = data.get("answer")
+    behavioral = data.get("behavioral")
     total = data.get("totalnumberofquestion")
  
-    if not all([userid, question, questionno, answer, total]):
+    if not all([userid, question, questionno, behavioral, total]):
         return {"status": "error", "message": "Missing required fields"}
 
-    user = UserQuestion.objects(userid=userid).first()
+    user = UserQuestionBehavioralAnalysis.objects(userid=userid).first()
 
     if user:
-        user.Questions.append({
-            'questionno': questionno,
-            "question": question,
-            "answer": answer
+        user.questions.append({
+            "questionno": questionno,
+            "question": question
         })
+        user.behavioral.append(behavioral)
         user.tillQuestioncount += 1
         user.totalnumberofquestion = total
         user.save()
@@ -41,13 +41,13 @@ def save_or_update_user_if_user_question_answer_session_is_done_send_to_kafka(da
                     response["kafka_status"] = f"Failed to send to Kafka: {str(e)}"
         return response
     else:
-        user = UserQuestion(
+        user = UserQuestionBehavioralAnalysis(
             userid=userid,
-            Questions=[{
+            questions=[{
                 "questionno": questionno,
-                "question": question,
-                "answer": answer
+                "question": question
             }],
+            behavioral=[behavioral],
             totalnumberofquestion=total,
             tillQuestioncount=1
         )

@@ -9,7 +9,7 @@ producer = KafkaProducer(
 )
 
 def send_to_kafka(topic_key, data):
-    topic = settings.KAFKA_TOPICS_2.get(topic_key)
+    topic = settings.KAFKA_TOPICS_4.get(topic_key)
     if not topic:
         raise ValueError(f"Kafka topic not found for key: {topic_key}")
     producer.send(topic, value=data)

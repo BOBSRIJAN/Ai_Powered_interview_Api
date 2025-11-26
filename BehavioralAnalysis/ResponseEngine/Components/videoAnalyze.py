@@ -5,6 +5,7 @@ import numpy as np
 import asyncio
 import json
 import time
+
 mp_pose = mp.solutions.pose
 mp_face_mesh = mp.solutions.face_mesh
 mp_face_detection = mp.solutions.face_detection
@@ -60,7 +61,7 @@ async def analyze_frame_async(rgb_frame):
     humans = len(face_result.detections) if face_result.detections else 0
     return humans, emotion_result, posture_result, eye_contact_result
 
-def analyze_candidate_video(video_path: str | None, frame_interval=30) -> str | None:
+def analyze_candidate_video(video_path: str | None, frame_interval: int = 30) -> str | None:
     """Analyze candidate video for behavioral metrics.
     Args:
         video_path (str | None): Path to the input video file.
@@ -114,7 +115,7 @@ def analyze_candidate_video(video_path: str | None, frame_interval=30) -> str | 
 
     return json.dumps(result, indent=2)
 
-# remove the example usage comment block before deploying, testing and production.
+# remove the example usage comment block before deploying or production.
 # if __name__ == "__main__":
 #     """Example usage of analyze_candidate_video function."""
 #     video_path = "input.mp4"

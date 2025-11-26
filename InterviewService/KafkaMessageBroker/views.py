@@ -11,4 +11,4 @@ def videoAnalysisRequest(request):
     if serializer.is_valid():
         send_to_kafka("video_analysis_request", serializer.validated_data)
         return Response({'status': 'Data sent to Kafka'}, status=status.HTTP_201_CREATED)
-    return Response({"error": "Invalid request method"}, status=status.HTTP_400_BAD_REQUEST)
+    return Response({"error": "Invalid request method or Incomplete request data"}, status=status.HTTP_400_BAD_REQUEST)

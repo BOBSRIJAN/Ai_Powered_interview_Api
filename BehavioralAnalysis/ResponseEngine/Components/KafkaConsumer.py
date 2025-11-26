@@ -3,7 +3,7 @@ from django.conf import settings
 import requests, json, logging, time, threading
 
 logger = logging.getLogger(__name__)
-_started = False  # Prevent multiple threads
+_started = False
 
 def start_kafka_consumer():
     """
@@ -26,7 +26,7 @@ def _consume_loop():
     """
     try:
         consumer = KafkaConsumer(
-            settings.KAFKA_TOPICS['video_analysis_request'],
+            settings.KAFKA_TOPICS['AudioAndVideoRequest'],
             bootstrap_servers=settings.KAFKA_BROKER_URL,
             auto_offset_reset='latest',
             enable_auto_commit=True,
@@ -36,7 +36,7 @@ def _consume_loop():
 
         api_url = f"http://127.0.0.1:{settings.APP_PORT}/interviewservice/api/v1/BehavioralAnalysis/VideoAnalysis/"
 
-        logger.info("🎧 Listening to Kafka topic in background...")
+        logger.info("Listening to Kafka topic in background...")
 
         for message in consumer:
             data = message.value

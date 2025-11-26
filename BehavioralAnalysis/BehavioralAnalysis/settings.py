@@ -70,9 +70,12 @@ KAFKA_TOPICS = {
     "AudioAndVideoRequest": "AudioAndVideoRequestTopic",
 }
 
-KAFKA_CONSUMER_GROUP = "Audio-analysis-group"
+KAFKA_CONSUMER_GROUP = "video-analysis-group"
 APP_PORT = 8003
 
+KAFKA_TOPICS_4 = {
+    "userBehavioral": "userBehavioralAnalysisTopic",
+}
 
 AUTH_PASSWORD_VALIDATORS = [
     {
