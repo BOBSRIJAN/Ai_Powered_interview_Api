@@ -26,10 +26,10 @@ def taskHendelar(request) -> Response:
     VideoFileName = f"Hendelar\\Video\\{data['userid']}_Video.mp4"
     AudioFileName = f"Hendelar\\Audio\\{data['userid']}_Audio.wav"
     links = uplodeAudioAndVideo(VideoFileName=VideoFileName, AudioFileName=AudioFileName)
-    
+
     if not links:
         print("Failed to upload files to Cloudinary.")
-    
+
     links.update(
         {
             'userid': data['userid'],
@@ -38,7 +38,7 @@ def taskHendelar(request) -> Response:
             'totalnumberofquestion': data['totalnumberofquestion']
         }
     )
-    
+
     print("Links obtained from Cloudinary:")
     send_to_kafka(topic_key="AudioAndVideoRequest", data=links)
     print("Links sent to Kafka successfully!")
