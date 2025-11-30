@@ -1,0 +1,12 @@
+mongoengine==0.29.1
+python-dotenv==1.1.1
+requests==2.32.5
+kafka-python==2.2.15
+opencv-python==4.11.0.86
+mediapipe==0.10.14
+deepface==0.0.93
+numpy==1.26.4
+tensorflow==2.16.1
+tf_keras==2.16.0
+keras==3.11.3
+huggingface-hub==0.34.4
