@@ -30,4 +30,4 @@ def delete_files_in_directory(directory_path: str) -> None:
             
 # Example usage (remove in production)
 # if __name__ == "__main__":
-#     delete_files_in_directory("Video")
+#     delete_files_in_directory("Audio")

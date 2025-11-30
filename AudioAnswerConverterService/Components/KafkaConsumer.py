@@ -23,11 +23,11 @@ def kafkaConsumer():
     """Create and return a Kafka consumer with error handling."""
     try:
         consumer = KafkaConsumer(
-            'video_analysis_request',
+            'AudioVideoRequestTopic',
             bootstrap_servers=os.getenv("KAFKA_BROKER_URL", "localhost:9092"),
             auto_offset_reset='latest',
             enable_auto_commit=True,
-            group_id='VideoAudioSeperatorGroup',
+            group_id='AudioSeperatorGroup',
             value_deserializer=lambda v: json.loads(v.decode('utf-8'))
         )
         print("Kafka Consumer connected successfully.")
@@ -45,7 +45,7 @@ def startConsumer(eventHandler):
         data = message.value
         eventHandler(data)
         consumer.commit()
-
+    
 # Example usage (remove in production)
 # if __name__ == "__main__":
 #     while True:
