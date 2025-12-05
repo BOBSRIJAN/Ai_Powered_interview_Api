@@ -25,7 +25,7 @@ def kafkaConsumer():
         consumer = KafkaConsumer(
             'AudioVideoRequestTopic',
             bootstrap_servers=os.getenv("KAFKA_BROKER_URL", "localhost:9092"),
-            auto_offset_reset='latest',
+            auto_offset_reset='earliest',
             enable_auto_commit=True,
             group_id='AudioSeperatorGroup',
             value_deserializer=lambda v: json.loads(v.decode('utf-8'))

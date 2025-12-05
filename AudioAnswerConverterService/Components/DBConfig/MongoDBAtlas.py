@@ -17,15 +17,8 @@ me.connect(
 
 # class Portion's
 class UserQuestionAnswer(me.Document):
-    """ 
-    MongoDB Document for storing user questions and answers.
-        Fields:
-            userid (str): Unique identifier for the user.
-            Questions (list): List of dictionaries containing questions and answers.
-            totalnumberofquestion (int): Total number of questions for the user.
-            tillQuestioncount (int): Count of questions processed so far.
-    """
     userid = me.StringField(required=True, unique=True)
+    sessionid = me.StringField(required=True, unique=True)
     Questions = me.ListField(me.DictField())
     totalnumberofquestion = me.IntField(default=0)
     tillQuestioncount = me.IntField(default=0)

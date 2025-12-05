@@ -1,9 +1,9 @@
 """
     Documentation:
         VideoAudioSeperatorService Cloudinary Upload Module.
-        This module handles the uploading of video and audio files to Cloudinary.
+        This module handles the uploading of audio files to Cloudinary.
     Returns:
-        dict: A dictionary containing the URLs of the uploaded video and audio files. 
+        dict: A dictionary containing the URLs of the uploaded audio files. 
 """
 
 # Import Headers
@@ -23,24 +23,22 @@ cloudinary.config(
 )
 
 # functions Portion's
-def uplodeAudioAndVideo(VideoFileName: str | None, AudioFileName: str | None) -> dict:
-    """Uploads video and audio files to Cloudinary and returns their URLs.
-        Args:
-            VideoFileName (str | None): Path to the video file to be uploaded.
-            AudioFileName (str | None): Path to the audio file to be uploaded.
-        Returns:
-            dict: A dictionary containing the URLs of the uploaded video and audio files.
-        """
-    video_response = cloudinary.uploader.upload(
-        VideoFileName,
-        resource_type="video"
-    )
+def uplodeAudioAndVideo(AudioFileName: str | None) -> dict:
+    """ Uploads audio file to Cloudinary and returns the URL.
+    Args:
+        AudioFileName (str | None): The path to the audio file to be uploaded.
+    Returns:
+        dict: A dictionary containing the URL of the uploaded audio file.
+    """
+    
+    if AudioFileName is None:
+        return {}
+    
     audio_response = cloudinary.uploader.upload(
         AudioFileName,
         resource_type="video"
     )
     dataDict = {
-        "videourl" : video_response['url'],
         "audiourl" : audio_response['url']
     }
     return dataDict

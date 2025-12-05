@@ -7,10 +7,10 @@ Documentation:
         None: This function processes the event and does not return any value.
 """
 # Import Headers
-from Components.VideoToMp3AndVideoConf import video_to_audio_and_video_conversion
-from Components.uplodeToCloudinary import uplodeAudioAndVideo
-from Components.kafkaProducer import sendToKafka
-from Components.DeleteDownloadData import delete_files_in_directory
+from . VideoToMp3AndVideoConf import video_to_audio_and_video_conversion
+from . uplodeToCloudinary import uplodeAudioAndVideo
+from . kafkaProducer import sendToKafka
+from . DeleteDownloadData import delete_files_in_directory
 import requests
 
 # functions Portion's
@@ -35,19 +35,20 @@ def eventHandler(data: dict) -> None:
     else:
         print("Failed to download file. Status:", response.status_code)
 
-    video_to_audio_and_video_conversion(FilePath=save_path, Filename=data['userid'])
-    VideoFileName = f"Video\\{data['userid']}Video.mp4"
-    AudioFileName = f"Audio\\{data['userid']}Audio.wav"
-    links = uplodeAudioAndVideo(VideoFileName=VideoFileName, AudioFileName=AudioFileName)
+    video_to_audio_and_video_conversion(FilePath=save_path, Filename=data["userid"])
+    AudioFileName = f"Audio\\{data["userid"]}Audio.wav"
+    links = uplodeAudioAndVideo(AudioFileName=AudioFileName)
 
     if not links:
         print("Failed to upload files to Cloudinary.")
 
     links.update({
-            'userid': data['userid'],
-            'question': data['question'],
-            'questionno': data['questionno'],
-            'totalnumberofquestion': data['totalnumberofquestion']
+            "userid": data["userid"],
+            "sessionid": data["sessionid"],
+            "question": data["question"],
+            "questionno": data["questionno"],
+            "videourl" : data["videourl"],
+            "totalnumberofquestion": data["totalnumberofquestion"]
         })
 
     print("Links obtained from Cloudinary:")

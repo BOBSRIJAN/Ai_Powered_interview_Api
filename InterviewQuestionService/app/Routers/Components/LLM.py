@@ -5,9 +5,9 @@ import dotenv
 dotenv.load_dotenv()
 api=os.getenv('Api_key')
 
-def Era_assistant(Task : str | None) -> str:
+def geminiAi(Task : str | None) -> str:
     """
-        this in the Era_assistant function working explanation
+        this in the GeminiAi function working explanation
         first we load the environment variables from the .env file
         then we set the api_key of the gemini-Ai model
         then we configure this model to use the loaded api_key
@@ -31,4 +31,4 @@ def Era_assistant(Task : str | None) -> str:
 
 ''' remove this in production '''
 # if __name__=="__main__":
-#     print(Era_assistant("what is Ai?"),"\nthis is the msg!")
+#     print(geminiAi("what is Ai?"),"\nthis is the msg!")

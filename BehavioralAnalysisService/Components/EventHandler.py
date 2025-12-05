@@ -33,11 +33,12 @@ def eventHandler(data: str | None) -> None:
     print(f"this was the responce:\n{result}")
 
     BehavioralFormat = {
-        "userid":data['userid'],
-        "question": data['question'],
-        'behavioral': result,
-        'questionno': data['questionno'],
-        "totalnumberofquestion": data['totalnumberofquestion'],
+        "userid":data["userid"],
+        "sessionid": data["sessionid"],
+        "question": data["question"],
+        "behavioral": result,
+        "questionno": data["questionno"],
+        "totalnumberofquestion": data["totalnumberofquestion"],
     }
 
     data = save_or_update_user_if_user_question_answer_session_is_done_send_to_kafka(data=BehavioralFormat, topic_key='userBehavioral')

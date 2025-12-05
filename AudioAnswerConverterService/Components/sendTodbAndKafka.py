@@ -12,6 +12,7 @@ def save_or_update_user_if_user_question_answer_session_is_done_send_to_kafka(da
         data (dict): A dictionary containing the following
             keys:
                 - 'userid' (str): Unique identifier for the user.
+                - 'sessionid' (str): Unique identifier for every Interview session.
                 - 'question' (str): The question asked to the user.
                 - 'questionno' (int): The question number in the session.
                 - 'answer' (str): The answer provided by the user.
@@ -23,6 +24,7 @@ def save_or_update_user_if_user_question_answer_session_is_done_send_to_kafka(da
     """
     
     userid = data.get("userid")
+    sessionid = data.get("sessionid")
     question = data.get("question")
     questionno = data.get("questionno")
     answer = data.get("answer")
@@ -31,7 +33,7 @@ def save_or_update_user_if_user_question_answer_session_is_done_send_to_kafka(da
     if not all([userid, question, questionno, answer, total]):
         return {"status": "error", "message": "Missing required fields"}
 
-    user = UserQuestionAnswer.objects(userid=userid).first()
+    user = UserQuestionAnswer.objects(userid=userid, sessionid=sessionid).first()
 
     if user:
         user.Questions.append({
@@ -71,6 +73,7 @@ def save_or_update_user_if_user_question_answer_session_is_done_send_to_kafka(da
 
     user = UserQuestionAnswer(
         userid=userid,
+        sessionid=sessionid,
         Questions=[{
             "questionno": questionno,
             "question": question,
@@ -104,5 +107,4 @@ def save_or_update_user_if_user_question_answer_session_is_done_send_to_kafka(da
             response["kafka_status"] = f"Sent to Kafka topic '{topic_1}'"
         except Exception as e:
             response["kafka_status"] = f"Failed to send to Kafka 1: {str(e)}"
-
     return response

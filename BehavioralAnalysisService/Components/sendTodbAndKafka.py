@@ -9,17 +9,25 @@ from . DBConfig.MongoDBAtlas import UserQuestionBehavioralAnalysis
 import json
 
 # functions Portion's
-def save_or_update_user_if_user_question_answer_session_is_done_send_to_kafka(data, topic_key):
-    """ Saves or updates user behavioral analysis data in MongoDB. If the user has completed all questions, 
-        sends the data to a specified Kafka topic.
-    Args:   
-        data (dict): A dictionary containing user behavioral analysis data.
-        topic_key (str): The Kafka topic key to send data to if the session is complete.
+def save_or_update_user_if_user_question_answer_session_is_done_send_to_kafka(data: dict | None, topic_key: str | None) -> dict[str, str] | dict[str,]:
+    """ 
+    Saves or updates the user's behavioral analysis session in MongoDB. If the session is complete,
+    sends the data to a specified Kafka topic.
+    Args:
+        data (dict): A dictionary containing the following
+            keys:
+                - 'userid' (str): Unique identifier for the user.
+                - 'question' (str): The question asked to the user.
+                - 'questionno' (int): The question number in the session.
+                - 'behavioral' (str): The behavioral analysis provided by the user.
+                - 'totalnumberofquestion' (int): Total number of questions in the session.
+        topic_key (str): Kafka topic to send data when the session is complete.
     Returns:
-        dict: A dictionary containing the status and message of the operation.
+        dict: A dictionary containing the status of the operation and Kafka sending status.
     """
     
     userid = data.get("userid")
+    sessionid = data.get("sessionid")
     question = data.get("question")
     questionno = data.get("questionno")
     behavioral = data.get("behavioral")
@@ -28,7 +36,7 @@ def save_or_update_user_if_user_question_answer_session_is_done_send_to_kafka(da
     if not all([userid, question, questionno, behavioral, total]):
         return {"status": "error", "message": "Missing required fields"}
 
-    user = UserQuestionBehavioralAnalysis.objects(userid=userid).first()
+    user = UserQuestionBehavioralAnalysis.objects(userid=userid, sessionid=sessionid).first()
 
     if user:
         user.questions.append({
@@ -59,6 +67,7 @@ def save_or_update_user_if_user_question_answer_session_is_done_send_to_kafka(da
     else:
         user = UserQuestionBehavioralAnalysis(
             userid=userid,
+            sessionid=sessionid,
             questions=[{
                 "questionno": questionno,
                 "question": question
