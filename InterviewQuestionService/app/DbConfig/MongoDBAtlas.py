@@ -10,8 +10,14 @@ import os
 dotenv.load_dotenv()
 
 # function portion
-def establishConnection():
+def establishConnection() -> None:
     me.connect(
         db="InterviewService",
         host=os.getenv('MongoDbUrl'),
+        alias="default"
     )
+    print("Connection Establish with Atlas...")
+    
+def terminatedConnection() -> None: 
+    me.disconnect(alias="default")
+    print("Connection Terminated with Atlas...")

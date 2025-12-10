@@ -23,6 +23,7 @@ class UserReport(me.Document):
     behavioralimprovement = me.StringField(required=True)
     improvementsuggestion = me.StringField(required=True)
     overallscore = me.IntField(min_value=1, max_value=100)
+    createdAt = me.DateTimeField()
     
     def __str__(self):
         return UserReport.userid

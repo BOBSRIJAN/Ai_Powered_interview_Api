@@ -53,7 +53,7 @@ def save_or_update_user_if_user_question_answer_session_is_done_send_to_kafka(da
 
         half = total // 2
 
-        if user.tillQuestioncount == half:
+        if user.tillQuestioncount == half - 2:
             try:
                 payload = json.loads(user.to_json())
                 sendToKafka(topic_2, data=payload)
@@ -92,7 +92,7 @@ def save_or_update_user_if_user_question_answer_session_is_done_send_to_kafka(da
 
     half = total // 2
 
-    if user.tillQuestioncount == half:
+    if user.tillQuestioncount == half - 2:
         try:
             payload = json.loads(user.to_json())
             sendToKafka(topic_2, data=payload)

@@ -1,34 +1,61 @@
+"""
+Module for interacting with Gemini AI model for content generation.
+    Documentation:
+        This module sets up the Gemini AI model using the Google Generative AI SDK. 
+        It provides a function to generate content based on a given task.
+    Args:
+        task (str): The task or prompt for content generation.
+    Returns:
+        str: Generated content based on the provided task.
+"""
+
 import os
 import google.generativeai as genai
 import dotenv
+import time
 
+# program configurations
 dotenv.load_dotenv()
-api=os.getenv('Api_key')
+# API Key Configuration
+try:
+    genai.configure(api_key=os.getenv('Api_key'))
+    print("Api key configurations done!")
+except Exception:
+    print("Error: Invalid or missing API key.")
+# Model Initialization
+model = genai.GenerativeModel(
+    "gemini-2.5-flash",
+    generation_config={
+        "temperature": 0.2,
+        "top_p": 0.8,
+        "top_k": 20,
+        "response_mime_type": "text/plain"
+    }
+)
+print("Model intuitions Done!")
 
-def geminiAi(Task : str | None) -> str:
+# functions Portion's
+def geminiAi(task: str | None) -> str:
     """
-        this in the GeminiAi function working explanation
-        first we load the environment variables from the .env file
-        then we set the api_key of the gemini-Ai model
-        then we configure this model to use the loaded api_key
-        then we create an instance of the model on this model 
-        we send the massage or task to the model
-        and it returns a response according to the task
+    Generate content using Gemini AI model based on the provided task.
+    Args:
+        task (str): The task or prompt for content generation.
+    Returns:
+        str: Generated content or an error message.
     """
-    if Task is None:
-        return
+    if not task:
+        return "No task provided."
     try:
-        genai.configure(api_key=api)
-    except KeyError:
-        return "Error: Api not working or Api key not set."
-    model = genai.GenerativeModel('gemini-2.5-flash')
-    
-    try:
-        response = model.generate_content(Task)
+        response = model.generate_content(task)
         return f"{response.text}"
     except Exception as e:
-        return f"Error: {e}"
+        return f"Exception: {str(e)}"
 
-''' remove this in production '''
-# if __name__=="__main__":
-#     print(geminiAi("what is Ai?"),"\nthis is the msg!")
+# Example usage (remove in production)
+# if __name__ == "__main__":
+#     Task = input("Enter you task: ")
+#     start=time.time()
+#     Result = geminiAi(Task)
+#     end=time.time()
+#     print(Result)
+#     print(f"total time taken: {end-start}")
