@@ -19,7 +19,7 @@ import dotenv
 import os
 
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("uvicorn")
 dotenv.load_dotenv()
 router = APIRouter(prefix="/interviewservice/api/v1/initializeinterview", tags=["initializeinterview"])
 

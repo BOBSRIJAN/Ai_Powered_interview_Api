@@ -1,6 +1,14 @@
 import requests
 
 def downloadFile(url: str, outputPath:str = "pdf\\pdf.pdf") -> None:
+    """
+    Downloads a file from the given URL and saves it to the specified output path.
+    Args:
+        url (str): The URL of the file to download.
+        outputPath (str): The path where the downloaded file will be saved.
+    Returns:
+        None
+    """
     try:
         with requests.get(url, stream=True, timeout=30) as response:
             response.raise_for_status()

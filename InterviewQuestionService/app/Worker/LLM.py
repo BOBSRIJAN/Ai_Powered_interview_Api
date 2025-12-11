@@ -26,6 +26,7 @@ try:
     logger.info("Api key configurations done!")
 except Exception:
     logger.info("Error: Invalid or missing API key.")
+    
 # Model Initialization
 model = genai.GenerativeModel(
     "gemini-2.5-flash",
@@ -54,7 +55,6 @@ def geminiAi(task: str | None) -> str:
         return f"{response.text}"
     except Exception as e:
         return f"Exception: {str(e)}"
-
 
 # Example usage (remove in production)
 # if __name__ == "__main__":

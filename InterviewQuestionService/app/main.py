@@ -1,12 +1,29 @@
 from fastapi import FastAPI
+from app.Routers.route import router
 from contextlib import asynccontextmanager
 from app.DbConfig.MongoDBAtlas import establishConnection, terminatedConnection
-from app.Routers.route import router
+from app.Worker.EventHandler import eventHandler
+from app.Worker.KafkaConsumer import startConsumer
+import threading
+import logging
+
+stop_event = threading.Event()
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("uvicorn")
+
+def initSubprocess() -> None:
+    startConsumer(eventHandler, stop_event)
+    logger.info("worker start....")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     establishConnection()
+    thread = threading.Thread(target=initSubprocess, daemon=True)
+    thread.start()
     yield
+    stop_event.set()
+    thread.join(timeout=5)
     terminatedConnection()
 
 app = FastAPI(
