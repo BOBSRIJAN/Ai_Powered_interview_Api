@@ -6,90 +6,67 @@
 # Import Headers
 from Components.VoiceTotext import WhisperAudioToText
 from Components.sendTodbAndKafka import save_or_update_user_if_user_question_answer_session_is_done_send_to_kafka
-from Components.DeleteDownloadData import delete_files_in_directory
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 import requests
-import os 
 
 # functions Portion's
-def safeDownload(url: str, file_path: str) -> bool:
-    """ Downloads a file from a URL with retry logic.
+def safeDownloadBytes(url: str) -> bytes | None:
+    """ Download audio file from the given URL with retry logic. 
         Args:
-            url (str): The URL of the file to download.
-            file_path (str): The local path where the file will be saved.
+            url (str): URL of the audio file to download.
         Returns:
-            bool: True if the download was successful, False otherwise.
+            bytes | None: The content of the audio file as bytes, or None if download fails
     """
     try:
+        print("trying to downlode the audio file....")
         session = requests.Session()
         retries = Retry(
-            total=5,      
-            backoff_factor=1,
+            total=3,
+            backoff_factor=0.5,
             status_forcelist=[500, 502, 503, 504],
             allowed_methods=["GET"]
         )
-
         session.mount("https://", HTTPAdapter(max_retries=retries))
-        response = session.get(url, stream=True, timeout=12)
+
+        response = session.get(url, timeout=10)
         response.raise_for_status()
-
-        with open(file_path, "wb") as f:
-            for chunk in response.iter_content(chunk_size=8192):
-                if chunk:
-                    f.write(chunk)
-
-        print(f"File downloaded successfully at: {file_path}")
-        return True
+        print("data downloded....")
+        return response.content  # bytes
 
     except Exception as e:
-        print(f"Download failed for URL: {url}")
-        print("Error:", e)
-        return False
-
+        print("Download failed:", e)
+        return None
 
 def eventHandler(data: dict) -> None:
+    """ Handle the event of receiving audio answer data.
+        Args:
+            data (dict): A dictionary containing the audio URL and metadata.
     """
-    Handles the event of processing an audio answer.
-    Downloads the audio file from the provided URL, converts it to text,
-    and saves or updates the user's question-answer session in the database.
-    Args:
-        data (dict): A dictionary containing the following
-            keys:
-                - 'audiourl' (str): URL of the audio file to be processed.
-                - 'userid' (str): Unique identifier for the user.
-                - 'question' (str): The question asked to the user.
-                - 'questionno' (int): The question number in the session.
-                - 'totalnumberofquestion' (int): Total number of questions in the session.
-    Returns:
-            None
-    """
-    
-    url = data['audiourl']
-    save_dir = "Audio"
-    os.makedirs(save_dir, exist_ok=True)
+    print("data recive to event handler")
+    audio_bytes = safeDownloadBytes(data['audiourl'])
 
-    filename = f"{data['userid']}.wav"
-    file_path = os.path.join(save_dir, filename)
+    if not audio_bytes:
+        print("Skipping processing due to download failure")
+        return
+    print("data going to whisper..")
+    answerText = WhisperAudioToText(audio_bytes)
 
-    if not safeDownload(url, file_path):
-        print("NetworkError: Skipping processing because download failed.")
-    
-    answerText = WhisperAudioToText(f"{save_dir}\\{filename}")
-    
     AnswerFormat = {
-        "userid":data["userid"],
+        "userid": data["userid"],
         "sessionid": data["sessionid"],
         "question": data["question"],
         "questionno": data["questionno"],
         "answer": answerText,
         "totalnumberofquestion": data["totalnumberofquestion"],
     }
-    
-    response = save_or_update_user_if_user_question_answer_session_is_done_send_to_kafka(data=AnswerFormat, topic_1='userAnswer', topic_2='contradictQuestions')
+    print("try data save to db")
+    response = save_or_update_user_if_user_question_answer_session_is_done_send_to_kafka(
+        data=AnswerFormat, 
+        topic_1='userAnswer', 
+        topic_2='contradictQuestions'
+    )
     print(response['kafka_status'], response['status'], response['message'])
-    delete_files_in_directory(save_dir)
-    return None
 
 # Example usage (remove in production)
 # if __name__ == "__main__":

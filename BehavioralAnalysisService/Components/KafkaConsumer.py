@@ -23,12 +23,15 @@ def kafkaConsumer():
     """Create and return a Kafka consumer with error handling."""
     try:
         consumer = KafkaConsumer(
-            'AudioVideoRequestTopic',
+            'video_analysis_request', #AudioVideoRequestTopic <-old!
             bootstrap_servers=os.getenv("KAFKA_BROKER_URL", "localhost:9092"),
             auto_offset_reset='earliest',
-            enable_auto_commit=True,
+            enable_auto_commit=False,
             group_id='VideoSeperatorGroup',
-            value_deserializer=lambda v: json.loads(v.decode('utf-8'))
+            value_deserializer=lambda v: json.loads(v.decode('utf-8')),
+            max_poll_interval_ms=30 * 60 * 1000,  # 30 minutes
+            session_timeout_ms=30000,             # 30 sec
+            heartbeat_interval_ms=10000,
         )
         print("Kafka Consumer connected successfully.")
         return consumer

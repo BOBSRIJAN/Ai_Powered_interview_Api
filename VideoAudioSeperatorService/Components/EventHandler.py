@@ -7,10 +7,10 @@ Documentation:
         None: This function processes the event and does not return any value.
 """
 # Import Headers
-from . VideoToMp3AndVideoConf import video_to_audio_and_video_conversion
+from . VideoToMp3AndVideoConf import videoToAudioConverter
 from . uplodeToCloudinary import uplodeAudioAndVideo
 from . kafkaProducer import sendToKafka
-from . DeleteDownloadData import delete_files_in_directory
+from . DeleteDownloadData import deleteFilesInDirectory
 import requests
 
 # functions Portion's
@@ -25,8 +25,9 @@ def eventHandler(data: dict) -> None:
     print("Event Handler triggered with data:")
     save_path = "Video\\downloaded_video.mp4"
     response = requests.get(data['videourl'], stream=True)
+    AudioFileName = f"Audio\\{data["userid"]}Audio.wav"
+
     print(f"Downloading video from URL:")
-    
     if response.status_code == 200:
         with open(save_path, "wb") as file:
             for chunk in response.iter_content(chunk_size=8192):
@@ -35,8 +36,7 @@ def eventHandler(data: dict) -> None:
     else:
         print("Failed to download file. Status:", response.status_code)
 
-    video_to_audio_and_video_conversion(FilePath=save_path, Filename=data["userid"])
-    AudioFileName = f"Audio\\{data["userid"]}Audio.wav"
+    videoToAudioConverter(video_path=save_path, audio_path=AudioFileName)
     links = uplodeAudioAndVideo(AudioFileName=AudioFileName)
 
     if not links:
@@ -50,12 +50,13 @@ def eventHandler(data: dict) -> None:
             "videourl" : data["videourl"],
             "totalnumberofquestion": data["totalnumberofquestion"]
         })
-
     print("Links obtained from Cloudinary:")
+    
     sendToKafka(data=links)
     print("Links sent to Kafka successfully!")
-    delete_files_in_directory("Audio")
-    delete_files_in_directory("Video")
+    
+    deleteFilesInDirectory("Audio")
+    deleteFilesInDirectory("Video")
     return None
 
 # Example usage (remove in production)

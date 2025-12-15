@@ -10,7 +10,7 @@ Documentation:
 import os
 
 # functions Portion's
-def delete_files_in_directory(directory_path: str) -> None:
+def deleteFilesInDirectory(directory_path: str) -> None:
     """
     Deletes all files in the given directory (non-recursive).
     Keeps folders intact.

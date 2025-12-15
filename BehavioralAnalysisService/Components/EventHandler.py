@@ -6,7 +6,7 @@
     """
 # Import Headers
 from Components.DeleteDownloadData import delete_files_in_directory
-from Components.videoAnalyze import analyze_candidate_video
+from Components.videoAnalyze import analyzeCandidateVideo
 from Components.sendTodbAndKafka import save_or_update_user_if_user_question_answer_session_is_done_send_to_kafka
 import requests
 
@@ -18,6 +18,7 @@ def eventHandler(data: str | None) -> None:
     Returns:
         None: This function does not return any value.
     """
+    print("Data Received At Event Handler....")
     save_path = "Video\\downloadedVideo.mp4"
     response = requests.get(data['videourl'], stream=True)
 
@@ -25,12 +26,12 @@ def eventHandler(data: str | None) -> None:
         with open(save_path, "wb") as file:
             for chunk in response.iter_content(chunk_size=8192):
                 file.write(chunk)
-        print("Video downloaded successfully!")
+        print("Video downloaded successfully....")
     else:
         print("Failed to download file. Status:", response.status_code)
 
-    result = analyze_candidate_video(save_path)
-    print(f"this was the responce:\n{result}")
+    result = analyzeCandidateVideo(save_path)
+    print(f"Analyze's Done This Was The Responce:\n{result}")
 
     BehavioralFormat = {
         "userid":data["userid"],

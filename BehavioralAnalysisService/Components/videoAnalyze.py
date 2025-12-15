@@ -3,7 +3,7 @@ Video Analysis Module
     This module analyzes a candidate's video for behavioral metrics such as emotion, posture, eye contact
     and number of humans detected.
     Returns:
-        str | None: JSON string with analysis results.
+        str : JSON string with analysis results.
 """
 # Import Headers
 import cv2
@@ -19,75 +19,107 @@ mp_pose = mp.solutions.pose
 mp_face_mesh = mp.solutions.face_mesh
 mp_face_detection = mp.solutions.face_detection
 
-pose_detector = mp_pose.Pose(static_image_mode=True, min_detection_confidence=0.5)
-face_mesh_detector = mp_face_mesh.FaceMesh(static_image_mode=True, max_num_faces=5)
-face_detector = mp_face_detection.FaceDetection(min_detection_confidence=0.5)
+pose_detector = mp_pose.Pose(
+    static_image_mode=False,
+    min_detection_confidence=0.5,
+    min_tracking_confidence=0.5
+)
 
-async def analyze_frame_async(rgb_frame):
-    """Run all analysis tasks concurrently for one frame."""
+face_mesh_detector = mp_face_mesh.FaceMesh(
+    static_image_mode=False,
+    max_num_faces=1
+)
 
+face_detector = mp_face_detection.FaceDetection(
+    min_detection_confidence=0.5
+)
+
+
+async def analyze_frame_async(rgb_frame, run_emotion: bool):
+    """ Asynchronously analyze a single video frame for behavioral metrics. """
+    
     async def detect_faces():
-        """ Detect faces in the frame. """
+        """Detect faces in the RGB frame."""
         return await asyncio.to_thread(lambda: face_detector.process(rgb_frame))
 
     async def analyze_emotion():
-        """ Analyze emotion in the frame. """
+        """Analyze the emotion in the RGB frame."""
         def _emotion():
-            """ Use DeepFace to analyze emotion. """
+            """ Helper function to analyze emotion using DeepFace. """
             try:
-                analysis = DeepFace.analyze(rgb_frame, actions=['emotion'], enforce_detection=False)
-                return analysis[0]['dominant_emotion']
+                analysis = DeepFace.analyze(
+                    rgb_frame,
+                    actions=["emotion"],
+                    enforce_detection=False
+                )
+                return analysis[0]["dominant_emotion"]
             except Exception:
                 return "unknown"
         return await asyncio.to_thread(_emotion)
 
     async def analyze_posture():
-        """ Analyze posture in the frame. """
+        """ Analyze posture in the RGB frame. """
         def _pose():
-            """ Use MediaPipe to analyze posture. """
-            pose_results = pose_detector.process(rgb_frame)
-            if pose_results.pose_landmarks:
-                landmarks = pose_results.pose_landmarks.landmark
-                shoulder_y = (landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].y +
-                              landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER.value].y) / 2
-                nose_y = landmarks[mp_pose.PoseLandmark.NOSE.value].y
+            """ Helper function to analyze posture using MediaPipe Pose. """
+            results = pose_detector.process(rgb_frame)
+            if results.pose_landmarks:
+                lm = results.pose_landmarks.landmark
+                shoulder_y = (lm[mp_pose.PoseLandmark.LEFT_SHOULDER.value].y +
+                              lm[mp_pose.PoseLandmark.RIGHT_SHOULDER.value].y) / 2
+                nose_y = lm[mp_pose.PoseLandmark.NOSE.value].y
                 return "upright" if nose_y < shoulder_y else "slouching"
             return "unknown"
         return await asyncio.to_thread(_pose)
 
     async def analyze_eye_contact():
-        """ Analyze eye contact in the frame. """
+        """ Analyze eye contact in the RGB frame. """
         def _eye():
-            """ Use MediaPipe Face Mesh to analyze eye contact. """
+            """ Helper function to analyze eye contact using MediaPipe Face Mesh. """
             results = face_mesh_detector.process(rgb_frame)
             return 1 if results.multi_face_landmarks else 0
         return await asyncio.to_thread(_eye)
-    
-    face_result, emotion_result, posture_result, eye_contact_result = await asyncio.gather(
-        detect_faces(), analyze_emotion(), analyze_posture(), analyze_eye_contact()
-    )
+
+    tasks = [
+        detect_faces(),
+        analyze_posture(),
+        analyze_eye_contact()
+    ]
+
+    if run_emotion:
+        tasks.append(analyze_emotion())
+    results = await asyncio.gather(*tasks)
+
+    face_result = results[0]
+    posture = results[1]
+    eye_contact = results[2]
+    emotion = results[3] if run_emotion else None
 
     humans = len(face_result.detections) if face_result.detections else 0
-    return humans, emotion_result, posture_result, eye_contact_result
+    return humans, emotion, posture, eye_contact
 
-def analyze_candidate_video(video_path: str | None, frame_interval: int = 30) -> str | None:
-    """Analyze candidate video for behavioral metrics.
-    Args:
-        video_path (str | None): Path to the input video file.
-    Returns:
-        str | None: JSON string with analysis results.
+
+def analyzeCandidateVideo(video_path: str, frame_interval: int = 60) -> str:
+    """Analyze a candidate's video for behavioral metrics.
+        Args:
+            video_path (str): Path to the input video file.
+            frame_interval (int): Interval at which frames are analyzed.
+        Returns:
+            str : JSON string with analysis results.
     """
-    
-    if video_path is None:
-        return None
-    
     cap = cv2.VideoCapture(video_path)
-    frame_count = 0
+
     emotions = []
     posture_status = []
     eye_contact_scores = []
     human_counts = []
-    
+
+    frame_count = 0
+    last_emotion = "unknown"
+    EMOTION_INTERVAL = 180
+
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+
     while True:
         ret, frame = cap.read()
         if not ret:
@@ -95,34 +127,56 @@ def analyze_candidate_video(video_path: str | None, frame_interval: int = 30) ->
 
         if frame_count % frame_interval == 0:
             rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            humans, emotion, posture, eye_contact = asyncio.run(analyze_frame_async(rgb_frame))
+            rgb_frame = cv2.resize(rgb_frame, (320, 240))
+
+            run_emotion = frame_count % EMOTION_INTERVAL == 0
+
+            humans, emotion, posture, eye_contact = loop.run_until_complete(
+                analyze_frame_async(rgb_frame, run_emotion)
+            )
+
+            if emotion:
+                last_emotion = emotion
+
             human_counts.append(humans)
-            emotions.append(emotion)
+            emotions.append(last_emotion)
             posture_status.append(posture)
             eye_contact_scores.append(eye_contact)
 
         frame_count += 1
 
     cap.release()
+    loop.close()
 
-    avg_eye_contact = np.mean(eye_contact_scores) if eye_contact_scores else 0
+    avg_eye_contact = float(np.mean(eye_contact_scores)
+                            ) if eye_contact_scores else 0
     avg_humans = int(round(np.mean(human_counts))) if human_counts else 0
-    posture_summary = max(set(posture_status), key=posture_status.count) if posture_status else "unknown"
+    posture_summary = (
+        max(set(posture_status), key=posture_status.count)
+        if posture_status else "unknown"
+    )
     unique_emotions = list(set(emotions))
 
     posture_score = 1.0 if posture_summary == "upright" else 0.5 if posture_summary == "slouching" else 0.3
-    emotion_score = sum(e in ["happy", "neutral", "confident"] for e in emotions) / len(emotions) if emotions else 0
-    overall_score = round(((avg_eye_contact * 40) + (posture_score * 30) + (emotion_score * 30)), 2)
+    emotion_score = (
+        sum(e in ["happy", "neutral", "confident"]
+            for e in emotions) / len(emotions)
+        if emotions else 0
+    )
 
-    result = {
+    overall_score = round(
+        (avg_eye_contact * 40) + (posture_score * 30) + (emotion_score * 30),
+        2
+    )
+
+    return json.dumps({
         "noOfHuman": avg_humans,
         "posture": posture_summary,
-        "eye_contact_score": round(float(avg_eye_contact), 2),
+        "eye_contact_score": round(avg_eye_contact, 2) * 100,
         "emotion": unique_emotions,
         "overallBehavioralScore": overall_score
-    }
+    }, indent=2)
 
-    return json.dumps(result, indent=2)
 
 # remove the example usage comment block before deploying or production.
 # if __name__ == "__main__":
