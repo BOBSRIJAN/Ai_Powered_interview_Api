@@ -11,9 +11,26 @@ from . VideoToMp3AndVideoConf import videoToAudioConverter
 from . uplodeToCloudinary import uplodeAudioAndVideo
 from . kafkaProducer import sendToKafka
 from . DeleteDownloadData import deleteFilesInDirectory
-import requests
+import urllib.request
 
 # functions Portion's
+def VideoDownloader(url: str, filename:str) -> None:
+    try:
+        req = urllib.request.Request(url)
+        req.add_header('User-Agent', 'Mozilla/5.0')
+
+        with urllib.request.urlopen(req, timeout=30) as response:
+            with open(filename, 'wb') as out_file:
+                chunk_size = 1024 * 1024
+                while True:
+                    chunk = response.read(chunk_size)
+                    if not chunk:
+                        break
+                    out_file.write(chunk)
+                    
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        
 def eventHandler(data: dict) -> None:
     """
     Handle events triggered by Kafka messages.
@@ -23,20 +40,13 @@ def eventHandler(data: dict) -> None:
             None
     """
     print("Event Handler triggered with data:")
-    save_path = "Video\\downloaded_video.mp4"
-    response = requests.get(data['videourl'], stream=True)
+    savePath = "Video\\downloaded_video.mp4"
     AudioFileName = f"Audio\\{data["userid"]}Audio.wav"
 
     print(f"Downloading video from URL:")
-    if response.status_code == 200:
-        with open(save_path, "wb") as file:
-            for chunk in response.iter_content(chunk_size=8192):
-                file.write(chunk)
-        print("Video downloaded successfully!")
-    else:
-        print("Failed to download file. Status:", response.status_code)
-
-    videoToAudioConverter(video_path=save_path, audio_path=AudioFileName)
+    VideoDownloader(url=data['videourl'], filename=savePath)
+    
+    videoToAudioConverter(video_path=savePath, audio_path=AudioFileName)
     links = uplodeAudioAndVideo(AudioFileName=AudioFileName)
 
     if not links:

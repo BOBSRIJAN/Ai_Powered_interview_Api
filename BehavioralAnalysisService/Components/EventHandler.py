@@ -8,9 +8,26 @@
 from Components.DeleteDownloadData import delete_files_in_directory
 from Components.videoAnalyze import analyzeCandidateVideo
 from Components.sendTodbAndKafka import save_or_update_user_if_user_question_answer_session_is_done_send_to_kafka
-import requests
+import urllib.request
 
 # functions Portion's
+def VideoDownloader(url: str, filename:str) -> None:
+    try:
+        req = urllib.request.Request(url)
+        req.add_header('User-Agent', 'Mozilla/5.0')
+
+        with urllib.request.urlopen(req, timeout=30) as response:
+            with open(filename, 'wb') as out_file:
+                chunk_size = 1024 * 1024
+                while True:
+                    chunk = response.read(chunk_size)
+                    if not chunk:
+                        break
+                    out_file.write(chunk)
+                    
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
 def eventHandler(data: str | None) -> None:
     """Handles the event of processing a video for behavioral analysis.
     Args:
@@ -19,18 +36,9 @@ def eventHandler(data: str | None) -> None:
         None: This function does not return any value.
     """
     print("Data Received At Event Handler....")
-    save_path = "Video\\downloadedVideo.mp4"
-    response = requests.get(data['videourl'], stream=True)
-
-    if response.status_code == 200:
-        with open(save_path, "wb") as file:
-            for chunk in response.iter_content(chunk_size=8192):
-                file.write(chunk)
-        print("Video downloaded successfully....")
-    else:
-        print("Failed to download file. Status:", response.status_code)
-
-    result = analyzeCandidateVideo(save_path)
+    savePath = "Video\\downloadedVideo.mp4"
+    VideoDownloader(url=data['videourl'], filename=savePath)
+    result = analyzeCandidateVideo(savePath)
     print(f"Analyze's Done This Was The Responce:\n{result}")
 
     BehavioralFormat = {
