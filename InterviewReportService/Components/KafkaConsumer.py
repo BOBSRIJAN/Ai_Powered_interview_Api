@@ -25,7 +25,7 @@ def kafkaConsumer():
         consumer = KafkaConsumer(
             'userAnswer',
             'userBehavioral',
-            bootstrap_servers=os.getenv("KAFKA_BROKER_URL", "localhost:9092"),
+            bootstrap_servers=os.getenv("KAFKA_BROKER_URL"),
             auto_offset_reset='earliest',
             enable_auto_commit=True,
             group_id='userAnswerGroup',

@@ -2,7 +2,8 @@ mongoengine==0.29.1
 python-dotenv==1.1.1
 requests==2.32.5
 kafka-python==2.2.15
-opencv-python==4.11.0.86
+# opencv-python==4.11.0.86 # only for the native system
+opencv-python-headless==4.11.0.86 #for docker only
 mediapipe==0.10.14
 deepface==0.0.93
 numpy==1.26.4

@@ -1,0 +1,24 @@
+services:
+  interview-question-service:
+    image: srijanray/interview-question-service:1.0.0
+    container_name: interview-question-service
+    env_file:
+      - ./.env
+    networks:
+      - interviewmate-network
+
+    ports:
+      - "8000:8000"
+
+    depends_on:
+      kafka:
+        condition: service_healthy
+
+    healthcheck:
+      interval: 10s
+      retries: 10
+      start_period: 40s
+
+networks:
+  interviewmate-network:
+    external: true

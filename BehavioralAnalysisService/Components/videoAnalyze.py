@@ -6,6 +6,12 @@ Video Analysis Module
         str : JSON string with analysis results.
 """
 # Import Headers
+import os
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+os.environ["DEEPFACE_HOME"] = os.path.join(
+    CURRENT_DIR,
+    "deepfaceData"
+)
 import cv2
 import mediapipe as mp
 from deepface import DeepFace

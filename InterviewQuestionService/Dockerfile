@@ -33,4 +33,4 @@ RUN pip install --no-cache-dir /wheels/* \
 
 COPY . .
 
-CMD ["python", "main.py"]
+CMD ["uvicorn", "app.main:app", "--reload"]

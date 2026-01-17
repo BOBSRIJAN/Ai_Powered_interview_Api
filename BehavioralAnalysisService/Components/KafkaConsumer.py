@@ -24,7 +24,7 @@ def kafkaConsumer():
     try:
         consumer = KafkaConsumer(
             'video_analysis_request', #AudioVideoRequestTopic <-old!
-            bootstrap_servers=os.getenv("KAFKA_BROKER_URL", "localhost:9092"),
+            bootstrap_servers=os.getenv("KAFKA_BROKER_URL"),
             auto_offset_reset='earliest',
             enable_auto_commit=False,
             group_id='VideoSeperatorGroup',

@@ -27,9 +27,9 @@ def kafkaConsumer():
     try:
         consumer = KafkaConsumer(
             'contradictQuestions',
-            bootstrap_servers=os.getenv("KAFKA_BROKER_URL", "localhost:9092"),
+            bootstrap_servers=os.getenv("KAFKA_BROKER_URL"),
             auto_offset_reset='earliest',
-            enable_auto_commit=True,
+            enable_auto_commit=False,
             group_id='contradictQuestionsGroup',
             value_deserializer=lambda v: json.loads(v.decode('utf-8'))
         )

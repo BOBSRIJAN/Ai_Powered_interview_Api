@@ -7,12 +7,14 @@
 # Import Headers
 from redis import Redis
 from . EventHandler import eventHandler
+import os
+import dotenv
 import json
 import time
 
 # program configurations
-redis_client = Redis(host='localhost', port=6379, db=0, decode_responses=True)
-
+dotenv.load_dotenv()
+redis_client = Redis(host=os.getenv('REDIS_HOST'), port=os.getenv('REDIS_PORT'), db=0, decode_responses=True)
 TOPIC1_PREFIX = "userAnswer:"
 TOPIC2_PREFIX = "userBehavioral:"
 WAIT_TIME = 3

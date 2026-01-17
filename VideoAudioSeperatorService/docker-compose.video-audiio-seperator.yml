@@ -1,0 +1,21 @@
+services:
+  video-audio-seperator-service:
+    image: srijanray/video-audio-seperator-service:1.0.0
+    container_name: video-audio-seperator-service
+    env_file: 
+      - ./.env
+    networks:
+      - interviewmate-network
+
+    depends_on:
+      kafka:
+        condition: service_healthy
+
+    healthcheck:
+      interval: 10s
+      retries: 10
+      start_period: 40s
+
+networks:
+  interviewmate-network:
+    external: true
