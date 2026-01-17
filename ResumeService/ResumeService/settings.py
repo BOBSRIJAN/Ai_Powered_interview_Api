@@ -10,7 +10,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 
 DEBUG = False
 
-ALLOWED_HOSTS = ['resumeservice.onrender.com','localhost', '127.0.0.1',]  
+ALLOWED_HOSTS = ['aipoweredinterviewapi.onrender.com','localhost', '127.0.0.1']  
 
 INSTALLED_APPS = [
     'django.contrib.admin',
