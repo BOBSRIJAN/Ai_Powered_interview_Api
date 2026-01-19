@@ -17,7 +17,7 @@ me.connect(
 
 # class Portion's
 class UserReport(me.Document):
-    userid = me.StringField(required=True, unique=True)
+    userid = me.StringField(required=True)
     sessionid = me.StringField(required=True, unique=True)
     questionandanswer = me.ListField(me.DictField())
     behavioralimprovement = me.StringField(required=True)

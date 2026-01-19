@@ -17,7 +17,7 @@ me.connect(
 
 # class Portion's
 class UserQuestionBehavioralAnalysis(me.Document):
-    userid = me.StringField(required=True, unique=True)
+    userid = me.StringField(required=True)
     sessionid = me.StringField(required=True, unique=True)
     questions = me.ListField(me.DictField())
     behavioral = me.ListField()  
@@ -25,4 +25,4 @@ class UserQuestionBehavioralAnalysis(me.Document):
     tillQuestioncount = me.IntField(default=0)
     
     def __str__(self):
-        return UserQuestionBehavioralAnalysis.userid
+        return self.userid

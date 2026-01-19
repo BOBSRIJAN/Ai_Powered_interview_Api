@@ -12,9 +12,18 @@ from . uplodeToCloudinary import uplodeAudioAndVideo
 from . kafkaProducer import sendToKafka
 from . DeleteDownloadData import deleteFilesInDirectory
 import urllib.request
+from pathlib import Path
 
 # functions Portion's
 def VideoDownloader(url: str, filename:str) -> None:
+    """
+    Download video from the given URL and save it to the specified filename.
+    Args:
+        url (str): The URL of the video to download.
+        filename (str): The path where the downloaded video will be saved.
+    Returns:
+        None
+    """
     try:
         req = urllib.request.Request(url)
         req.add_header('User-Agent', 'Mozilla/5.0')
@@ -40,8 +49,18 @@ def eventHandler(data: dict) -> None:
             None
     """
     print("Event Handler triggered with data:")
-    savePath = "Video\\downloaded_video.mp4"
-    AudioFileName = f"Audio\\{data["userid"]}Audio.wav"
+    # savePath = "Video\\downloaded_video.mp4"
+    # AudioFileName = f"Audio\\{data["userid"]}Audio.wav"
+    BASE_DIR = Path.cwd()
+
+    video_dir = BASE_DIR / "Video"
+    audio_dir = BASE_DIR / "Audio"
+
+    video_dir.mkdir(parents=True, exist_ok=True)
+    audio_dir.mkdir(parents=True, exist_ok=True)
+
+    savePath = video_dir / "downloaded_video.mp4"
+    AudioFileName = audio_dir / f"{data['userid']}Audio.wav"
 
     print(f"Downloading video from URL:")
     VideoDownloader(url=data['videourl'], filename=savePath)

@@ -17,7 +17,7 @@ me.connect(
 
 # class Portion's
 class UserQuestionAnswer(me.Document):
-    userid = me.StringField(required=True, unique=True)
+    userid = me.StringField(required=True)
     sessionid = me.StringField(required=True, unique=True)
     Questions = me.ListField(me.DictField())
     totalnumberofquestion = me.IntField(default=0)
