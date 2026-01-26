@@ -1,38 +1,36 @@
-FROM python:3.12
 
-# Set working directory
+# -------- BUILD STAGE --------
+FROM python:3.12-slim AS builder
+
 WORKDIR /app
 
-# Install system dependencies for building Python packages and multimedia processing
-RUN apt-get update && apt-get install -y \
+# Prevent cache & pyc
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
-    python3-dev \
-    ffmpeg \
-    libpq-dev \
-    libffi-dev \
-    libssl-dev \
-    portaudio19-dev \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*  # Clean up to reduce image size
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements and upgrade pip
 COPY requirements.txt .
-RUN pip install --no-cache-dir --upgrade pip setuptools wheel
 
-# Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --upgrade pip \
+    && pip wheel --no-cache-dir --wheel-dir /wheels -r requirements.txt
 
-# Copy project code
+# -------- RUNTIME STAGE --------
+FROM python:3.12-slim
+
+WORKDIR /app
+
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+COPY --from=builder /wheels /wheels
+
+RUN pip install --no-cache-dir /wheels/* \
+    && rm -rf /wheels
+
 COPY . .
 
-# Django migrations
-RUN python manage.py makemigrations
-RUN python manage.py migrate
-
-# Expose port
-EXPOSE 8000
-
-# Run server with Gunicorn + Uvicorn without log info 
-# CMD ["gunicorn", "ResumeService.asgi:application", "--worker-class", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:8000"]
-
-# Run server with Gunicorn + Uvicorn with log info
-CMD ["gunicorn", "ResumeService.asgi:application", "--worker-class", "uvicorn.workers.UvicornWorker", "--workers", "2", "--threads", "2", "--bind", "0.0.0.0:8000", "--log-level", "debug", "--access-logfile", "-", "--error-logfile", "-"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

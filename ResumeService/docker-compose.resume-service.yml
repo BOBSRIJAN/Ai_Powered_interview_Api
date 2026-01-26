@@ -1,0 +1,23 @@
+services:
+  resume-service:
+    image: srijanray/resume-service:1.0.0
+    container_name: resume-service
+
+    env_file:
+      - ./.env
+
+    networks:
+      - interviewmate-network
+
+    ports:
+      - "8000:8000"
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/resumeanalyzer/api/v1/healthcheck"]
+      interval: 10s
+      retries: 10
+      start_period: 40s
+
+networks:
+  interviewmate-network:
+    external: true
