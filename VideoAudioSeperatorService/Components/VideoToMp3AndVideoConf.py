@@ -9,6 +9,10 @@
 # Import Headers
 import os
 import subprocess
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger: logging = logging.getLogger("python")
 
 # functions Portion's
 def videoToAudioConverter (video_path: str, audio_path: str) -> str:
@@ -24,7 +28,7 @@ def videoToAudioConverter (video_path: str, audio_path: str) -> str:
         raise FileNotFoundError(f"Input video file does not exist: {video_path}")
     os.makedirs(os.path.dirname(audio_path), exist_ok=True)
 
-    print(f"Extracting Whisper-compatible audio from: {video_path}")
+    logger.info(f"Extracting Whisper-compatible audio from: {video_path}")
     command = ["ffmpeg", "-y", "-i", video_path, "-vn", "-ac", "1", "-ar", "16000", "-c:a", "pcm_s16le", audio_path]
     result = subprocess.run(
         command,
@@ -35,7 +39,7 @@ def videoToAudioConverter (video_path: str, audio_path: str) -> str:
     if result.returncode != 0:
         raise RuntimeError(f"FFmpeg failed:\n{result.stderr.decode()}")
 
-    print(f"Audio ready for Whisper: {audio_path}")
+    logger.info(f"Audio ready for Whisper: {audio_path}")
     return audio_path
 
 # Example usage (remove in production)

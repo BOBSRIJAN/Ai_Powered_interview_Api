@@ -12,16 +12,21 @@ Module for interacting with Gemini AI model for content generation.
 import os
 import google.generativeai as genai
 import dotenv
+import logging
 import time
 
 # program configurations
 dotenv.load_dotenv()
+
+logging.basicConfig(level=logging.INFO)
+logger: logging = logging.getLogger("python")
+
 # API Key Configuration
 try:
     genai.configure(api_key=os.getenv('Api_key'))
-    print("Api key configurations done!")
+    logger.info("Api key configurations done.")
 except Exception:
-    print("Error: Invalid or missing API key.")
+    logger.exception("Error: Invalid or missing API key.")
 # Model Initialization
 model = genai.GenerativeModel(
     "gemini-2.5-flash",
@@ -32,7 +37,7 @@ model = genai.GenerativeModel(
         "response_mime_type": "text/plain"
     }
 )
-print("Model intuitions Done!")
+logger.info("Model intuitions Done.")
 
 # functions Portion's
 def geminiAi(task: str | None) -> str:

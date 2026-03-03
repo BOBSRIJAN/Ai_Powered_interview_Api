@@ -26,6 +26,13 @@ def save_or_update_user_if_user_question_answer_session_is_done_send_to_kafka(da
         dict: A dictionary containing the status of the operation and Kafka sending status.
     """
     
+    if not isinstance(data, dict):
+        return {
+            "status": "error",
+            "message": "Invalid data format",
+            "kafka_status": None
+        }
+    
     userid = data.get("userid")
     sessionid = data.get("sessionid")
     question = data.get("question")
@@ -34,7 +41,11 @@ def save_or_update_user_if_user_question_answer_session_is_done_send_to_kafka(da
     total = data.get("totalnumberofquestion")
  
     if not all([userid, question, questionno, behavioral, total]):
-        return {"status": "error", "message": "Missing required fields"}
+        return {
+            "status": "error",
+            "message": "Missing required fields",
+            "kafka_status": None
+        }
 
     user = UserQuestionBehavioralAnalysis.objects(userid=userid, sessionid=sessionid).first()
 
@@ -46,7 +57,15 @@ def save_or_update_user_if_user_question_answer_session_is_done_send_to_kafka(da
         user.behavioral.append(behavioral)
         user.tillQuestioncount += 1
         user.totalnumberofquestion = total
-        user.save()
+        
+        try:
+            user.save()
+        except Exception as e:
+            return {
+                "status": "error",
+                "message": f"Database error: {str(e)}",
+                "kafka_status": None
+            }
 
         response = {
             "status": "updated",
@@ -76,7 +95,15 @@ def save_or_update_user_if_user_question_answer_session_is_done_send_to_kafka(da
             totalnumberofquestion=total,
             tillQuestioncount=1
         )
-        user.save()
+        
+        try:
+            user.save()
+        except Exception as e:
+            return {
+                "status": "error",
+                "message": f"Database error: {str(e)}",
+                "kafka_status": None
+            }
 
         response = {
             "status": "created",

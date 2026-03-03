@@ -14,16 +14,20 @@ import dotenv
 import os
 import json
 import time
+import logging
 
 # program configurations
 dotenv.load_dotenv()
+
+logging.basicConfig(level=logging.INFO)
+logger: logging = logging.getLogger("python")
 
 # functions Portion's
 def kafkaConsumer():
     """Create and return a Kafka consumer with error handling."""
     try:
         consumer = KafkaConsumer(
-            'video_analysis_request', #AudioVideoRequestTopic <-old!
+            'video_analysis_request',
             bootstrap_servers=os.getenv("KAFKA_BROKER_URL"),
             auto_offset_reset='earliest',
             enable_auto_commit=False,
@@ -33,17 +37,17 @@ def kafkaConsumer():
             session_timeout_ms=30000,             # 30 sec
             heartbeat_interval_ms=10000,
         )
-        print("Kafka Consumer connected successfully.")
+        logger.info("Kafka Consumer connected successfully.")
         return consumer
     except Exception as e:
-        print(f"Failed to create Kafka consumer: {e}")
+        logger.exception(f"Failed to create Kafka consumer: {e}")
         time.sleep(5)
     return None
 
 def startConsumer(eventHandler):
     """Start the Kafka consumer and process messages using the provided event handler."""
     consumer = kafkaConsumer()
-    print("Kafka Consumer started... \nwaiting for messages....")
+    logger.info("Kafka Consumer started waiting for messages.")
     for message in consumer:
         data = message.value
         eventHandler(data)

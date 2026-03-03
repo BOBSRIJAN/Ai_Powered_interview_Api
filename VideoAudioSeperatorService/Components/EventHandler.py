@@ -13,6 +13,10 @@ from . kafkaProducer import sendToKafka
 from . DeleteDownloadData import deleteFilesInDirectory
 import urllib.request
 from pathlib import Path
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger: logging = logging.getLogger("python")
 
 # functions Portion's
 def VideoDownloader(url: str, filename:str) -> None:
@@ -38,8 +42,8 @@ def VideoDownloader(url: str, filename:str) -> None:
                     out_file.write(chunk)
                     
     except Exception as e:
-        print(f"An error occurred: {e}")
-        
+        logger.exception(f"An error occurred: {e}")
+
 def eventHandler(data: dict) -> None:
     """
     Handle events triggered by Kafka messages.
@@ -48,7 +52,7 @@ def eventHandler(data: dict) -> None:
         Returns:
             None
     """
-    print("Event Handler triggered with data:")
+    logger.info("Event Handler triggered with data")
     # savePath = "Video\\downloaded_video.mp4"
     # AudioFileName = f"Audio\\{data["userid"]}Audio.wav"
     BASE_DIR = Path.cwd()
@@ -60,29 +64,29 @@ def eventHandler(data: dict) -> None:
     audio_dir.mkdir(parents=True, exist_ok=True)
 
     savePath = video_dir / "downloaded_video.mp4"
-    AudioFileName = audio_dir / f"{data['userid']}Audio.wav"
+    AudioFileName = audio_dir / f"{data.get('userid')}Audio.wav"
 
-    print(f"Downloading video from URL:")
-    VideoDownloader(url=data['videourl'], filename=savePath)
+    logger.info(f"Downloading video from URL:")
+    VideoDownloader(url=data.get('videourl'), filename=savePath)
     
     videoToAudioConverter(video_path=savePath, audio_path=AudioFileName)
-    links = uplodeAudioAndVideo(AudioFileName=AudioFileName)
+    links: dict = uplodeAudioAndVideo(AudioFileName=AudioFileName)
 
     if not links:
-        print("Failed to upload files to Cloudinary.")
+        logger.error("Failed to upload files to Cloudinary.")
 
     links.update({
-            "userid": data["userid"],
-            "sessionid": data["sessionid"],
-            "question": data["question"],
-            "questionno": data["questionno"],
-            "videourl" : data["videourl"],
-            "totalnumberofquestion": data["totalnumberofquestion"]
+            "userid": data.get('userid'),
+            "sessionid": data.get('sessionid'),
+            "question": data.get('question'),
+            "questionno": data.get('questionno'),
+            "videourl" : data.get('videourl'),
+            "totalnumberofquestion": data.get('totalnumberofquestion')
         })
-    print("Links obtained from Cloudinary:")
+    logger.info("Links obtained from Cloudinary:")
     
     sendToKafka(data=links)
-    print("Links sent to Kafka successfully!")
+    logger.info("Links sent to Kafka successfully.")
     
     deleteFilesInDirectory("Audio")
     deleteFilesInDirectory("Video")

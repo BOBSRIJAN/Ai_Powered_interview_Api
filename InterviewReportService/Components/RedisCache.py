@@ -11,10 +11,16 @@ import os
 import dotenv
 import json
 import time
+import logging
 
 # program configurations
 dotenv.load_dotenv()
+
+logging.basicConfig(level=logging.INFO)
+logger: logging = logging.getLogger("python")
+
 redis_client = Redis(host=os.getenv('REDIS_HOST'), port=os.getenv('REDIS_PORT'), db=0, decode_responses=True)
+
 TOPIC1_PREFIX = "userAnswer:"
 TOPIC2_PREFIX = "userBehavioral:"
 WAIT_TIME = 3
@@ -28,7 +34,7 @@ def processMatchedData(data1: dict | None, data2: dict | None) -> None:
             Returns:
             None
     """
-    print("Data send to eventHandler....")
+    logger.info("Data send to eventHandler successfully.")
     eventHandler(data1=data1, data2=data2)
     
 
@@ -88,10 +94,10 @@ def handleMessage(topic: str, message: dict) -> None:
     saveToRedis(topic, sessionid, message)
     if checkMatch(sessionid):
         return
-    print(f"Waiting {WAIT_TIME}s for matching userId={sessionid}...")
+    logger.info(f"Waiting {WAIT_TIME}s for matching userId={sessionid}.")
     time.sleep(WAIT_TIME)
 
     if checkMatch(sessionid):
         return
-    print("Trying ANY user for global matching...")
+    logger.info("Trying any user for sessionid matching.")
     tryMatchAnyUser()

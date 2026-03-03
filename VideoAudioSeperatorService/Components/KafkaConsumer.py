@@ -14,9 +14,13 @@ import dotenv
 import os
 import json
 import time
+import logging
 
 # program configurations
 dotenv.load_dotenv()
+
+logging.basicConfig(level=logging.INFO)
+logger: logging = logging.getLogger("python")
 
 # functions Portion's
 def kafkaConsumer():
@@ -33,10 +37,10 @@ def kafkaConsumer():
             max_poll_interval_ms=600000,  
             value_deserializer=lambda v: json.loads(v.decode('utf-8'))
         )
-        print("Kafka Consumer connected successfully.")
+        logger.info("Kafka Consumer connected successfully.")
         return consumer
     except Exception as e:
-        print(f"Failed to create Kafka consumer: {e}")
+        logger.info(f"Failed to create Kafka consumer: {e}")
         time.sleep(5)
     return None
 
@@ -49,7 +53,7 @@ def startConsumer(eventHandler):
         None
     """
     consumer = kafkaConsumer()
-    print("Kafka Consumer started... \nwaiting for messages....")
+    logger.info("Kafka Consumer started waiting for messages.")
 
     while True:
         records = consumer.poll(timeout_ms=2000)
@@ -64,16 +68,16 @@ def startConsumer(eventHandler):
                 try:
                     eventHandler(data)
                 except Exception as e:
-                    print(f"Error while processing message: {e}")
+                    logger.exception(f"Error while processing message: {e}")
                     continue
                 try:
                     consumer.commit()
-                    print("Message processed & committed.")
+                    logger.info("Message processed & committed.")
                 except Exception as e:
-                    print(f"CommitError: {e}")
+                    logger.exception(f"CommitError: {e}")
 
 # Example usage (remove in production)
 # if __name__ == "__main__":
 #     while True:
 #         msg = startConsumer()
-#         print(msg)
+#         logger.info(msg)

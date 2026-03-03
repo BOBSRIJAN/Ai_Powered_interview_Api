@@ -14,9 +14,13 @@ import dotenv
 import os
 import json
 import time
+import logging
 
 # program configurations
 dotenv.load_dotenv()
+
+logging.basicConfig(level=logging.INFO)
+logger: logging = logging.getLogger("python")
 
 # functions Portion's
 def kafkaConsumer():
@@ -30,17 +34,17 @@ def kafkaConsumer():
             group_id='AudioSeperatorGroup',
             value_deserializer=lambda v: json.loads(v.decode('utf-8'))
         )
-        print("Kafka Consumer connected successfully.")
+        logger.info("Kafka Consumer connected successfully.")
         return consumer
     except Exception as e:
-        print(f"Failed to create Kafka consumer: {e}")
+        logger.info(f"Failed to create Kafka consumer: {e}")
         time.sleep(5)
     return None
 
 def startConsumer(eventHandler):
     """Start the Kafka consumer and process messages using the provided event handler."""
     consumer = kafkaConsumer()
-    print("Kafka Consumer started... \nwaiting for messages....")
+    logger.info("Kafka Consumer started waiting for messages.")
     for message in consumer:
         data = message.value
         eventHandler(data)

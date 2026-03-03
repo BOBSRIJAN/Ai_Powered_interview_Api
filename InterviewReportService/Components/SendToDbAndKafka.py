@@ -1,11 +1,14 @@
+# Import Headers
 from . DBConfig.MongoDBAtlas import UserReport
 from . kafkaProducer import sendToKafka
+
+# functions Portion's
 def if_user_report_is_ready_send_to_kafka_and_db(UserData: dict, topic: str ="UserReport") -> dict[str,str] | None:
     User = UserReport.objects(sessionid=UserData["sessionid"]).first()
     
     if User: 
         try:
-            raise Exception("Something Went Wrong! Session Id Already Exist In DataBase :(")
+            raise Exception("Something Went Wrong! Session Id Already Exist In DataBase:(")
         except Exception as e:
             print("Exception:", e)       
     else:

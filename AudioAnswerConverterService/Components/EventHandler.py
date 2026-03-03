@@ -9,6 +9,11 @@ from Components.sendTodbAndKafka import save_or_update_user_if_user_question_ans
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 import requests
+import logging
+
+# program configurations
+logging.basicConfig(level=logging.INFO)
+logger: logging = logging.getLogger("python")
 
 # functions Portion's
 def safeDownloadBytes(url: str) -> bytes | None:
@@ -19,7 +24,7 @@ def safeDownloadBytes(url: str) -> bytes | None:
             bytes | None: The content of the audio file as bytes, or None if download fails
     """
     try:
-        print("trying to downlode the audio file....")
+        logger.info("Trying to downlode the audio file from Cloudinary.")
         session = requests.Session()
         retries = Retry(
             total=3,
@@ -31,11 +36,11 @@ def safeDownloadBytes(url: str) -> bytes | None:
 
         response = session.get(url, timeout=10)
         response.raise_for_status()
-        print("data downloded....")
-        return response.content  # bytes
+        logger.info("Audiio data downloded Successfully.")
+        return response.content
 
     except Exception as e:
-        print("Download failed:", e)
+        logger.info("Audiio data download failed: ", e)
         return None
 
 def eventHandler(data: dict) -> None:
@@ -43,30 +48,31 @@ def eventHandler(data: dict) -> None:
         Args:
             data (dict): A dictionary containing the audio URL and metadata.
     """
-    print("data recive to event handler")
+    logger.info("Audio data recive at event handler.")
     audio_bytes = safeDownloadBytes(data['audiourl'])
 
     if not audio_bytes:
-        print("Skipping processing due to download failure")
+        logger.info("Skipping processing due to download failure.")
         return
-    print("data going to whisper..")
+    logger.info("Audio data going to whisper for transformation.")
     answerText = WhisperAudioToText(audio_bytes)
 
     AnswerFormat = {
-        "userid": data["userid"],
-        "sessionid": data["sessionid"],
-        "question": data["question"],
-        "questionno": data["questionno"],
-        "answer": answerText,
-        "totalnumberofquestion": data["totalnumberofquestion"],
+        "userid": data.get('userid'),
+        "sessionid": data.get('sessionid'),
+        "question": data.get('question'),
+        "questionno": data.get('questionno'),
+        "answer": str(answerText),
+        "totalnumberofquestion": data.get('totalnumberofquestion'),
     }
-    print("try data save to db")
+    logger.info("Trying to store the processed data in to the Kafka and data")
     response = save_or_update_user_if_user_question_answer_session_is_done_send_to_kafka(
         data=AnswerFormat, 
         topic_1='userAnswer', 
         topic_2='contradictQuestions'
     )
-    print(response['kafka_status'], response['status'], response['message'])
+    
+    logger.info(f'Kafka status: {response.get('kafka_status')} massage status: {response.get('status')} massage: {response.get('message')}')
 
 # Example usage (remove in production)
 # if __name__ == "__main__":

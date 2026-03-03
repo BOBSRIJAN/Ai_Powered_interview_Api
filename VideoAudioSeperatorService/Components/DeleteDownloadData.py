@@ -8,6 +8,10 @@ Documentation:
 
 # Import Headers
 import os
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger: logging = logging.getLogger("python")
 
 # functions Portion's
 def deleteFilesInDirectory(directory_path: str) -> None:
@@ -16,7 +20,7 @@ def deleteFilesInDirectory(directory_path: str) -> None:
     Keeps folders intact.
     """
     if not os.path.exists(directory_path):
-        print(f"Directory '{directory_path}' does not exist.")
+        logger.info(f"Directory '{directory_path}' does not exist.")
         return
     
     for filename in os.listdir(directory_path):
@@ -24,10 +28,10 @@ def deleteFilesInDirectory(directory_path: str) -> None:
         try:
             if os.path.isfile(file_path):
                 os.remove(file_path)
-                print(f"Deleted: {file_path}")
+                logger.info(f"Deleted: {file_path}")
         except Exception as e:
-            print(f"Error deleting {file_path}: {e}")
+            logger.info(f"Error deleting {file_path}: {e}")
             
 # Example usage (remove in production)
 # if __name__ == "__main__":
-#     delete_files_in_directory("Video")
+#     deleteFilesInDirectory("Video")

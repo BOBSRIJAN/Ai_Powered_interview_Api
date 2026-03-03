@@ -5,12 +5,16 @@
         None: This function does not return any value.
     """
 # Import Headers
-from Components.DeleteDownloadData import delete_files_in_directory
 from Components.videoAnalyze import analyzeCandidateVideo
 from Components.sendTodbAndKafka import save_or_update_user_if_user_question_answer_session_is_done_send_to_kafka
 import urllib.request
 from pathlib import Path
 import uuid
+import logging
+
+# program configurations
+logging.basicConfig(level=logging.INFO)
+logger: logging = logging.getLogger("python")
 
 BASE_DIR = Path.cwd()
 VIDEO_DIR = BASE_DIR / "Video"
@@ -40,7 +44,7 @@ def VideoDownloader(url: str, filename:str) -> None:
                     out_file.write(chunk)
                     
     except Exception as e:
-        print(f"An error occurred: {e}")
+        logger.info(f"An error occurred: {e}")
 
 def eventHandler(data: dict | None) -> None:
     """Handles the event of processing a video for behavioral analysis.
@@ -49,16 +53,16 @@ def eventHandler(data: dict | None) -> None:
     Returns:
         None: This function does not return any value.
     """
-    print("Data Received At Event Handler....")
-    video_filename = (f"{data['userid']}_" f"{data['sessionid']}_" f"q{data['questionno']}_" f"{uuid.uuid4().hex}.mp4")
+    logger.info("Data Received At Event Handler.")
+    video_filename = (f"{data.get('userid')}_" f"{data.get('sessionid')}_" f"q{data.get('questionno')}_" f"{uuid.uuid4().hex}.mp4")
     savePath = VIDEO_DIR / video_filename
 
     try:
-        VideoDownloader(url=data['videourl'], filename=str(savePath))
+        VideoDownloader(url=data.get('videourl'), filename=str(savePath))
         result = analyzeCandidateVideo(str(savePath))
-        print(f"Analyze Done:\n{result}")
+        logger.info(f"Analyze Done:\n{result}")
     except Exception as e:
-        print("Analyze failed:", e)
+        logger.exception("Analyze failed:", e)
         result = {
             "noOfHuman": 0,
             "posture": "unknown",
@@ -69,17 +73,17 @@ def eventHandler(data: dict | None) -> None:
     finally:
         if savePath.exists():
             savePath.unlink()
-            print(f"Deleted: {savePath}")
+            logger.info(f"Deleted: {savePath}")
 
     BehavioralFormat = {
-        "userid": data["userid"],
-        "sessionid": data["sessionid"],
-        "question": data["question"],
+        "userid": data.get('userid'),
+        "sessionid": data.get('sessionid'),
+        "question": data.get('question'),
         "behavioral": result,
-        "questionno": data["questionno"],
-        "totalnumberofquestion": data["totalnumberofquestion"],
+        "questionno": data.get('questionno'),
+        "totalnumberofquestion": data.get('totalnumberofquestion'),
     }
 
-    kafka_data = save_or_update_user_if_user_question_answer_session_is_done_send_to_kafka(data=BehavioralFormat, topic_key='userBehavioral')
-    print(kafka_data['kafka_status'], kafka_data['status'], kafka_data['message'])
+    response = save_or_update_user_if_user_question_answer_session_is_done_send_to_kafka(data=BehavioralFormat, topic_key='userBehavioral')
+    logger.info(f'Kafka status: {response.get('kafka_status')} massage status: {response.get('status')} massage: {response.get('message')}')
     return None

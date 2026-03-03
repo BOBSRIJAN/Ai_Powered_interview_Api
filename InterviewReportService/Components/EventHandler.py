@@ -1,10 +1,19 @@
+
+# Import Headers
 from . SendToDbAndKafka import if_user_report_is_ready_send_to_kafka_and_db
 from . LLM import geminiAi
+import logging
 import dotenv
-import os
 import json
+import os
 
+# program configurations
 dotenv.load_dotenv()
+
+logging.basicConfig(level=logging.INFO)
+logger: logging = logging.getLogger("python")
+
+# functions Portion's
 def eventHandler(data1: dict | None, data2: dict | None) -> None:
     """
     Handles the event by processing input data, generating a user report using Gemini AI,
@@ -31,8 +40,8 @@ def eventHandler(data1: dict | None, data2: dict | None) -> None:
                 q["actualquestionanswer"] = actual_answers[i]
             del jsondata["actualanswer"]
         except Exception as e:
-            print(f"Exception: {e}")
+            logger.exception(f"Exception: {e}")
 
     status = if_user_report_is_ready_send_to_kafka_and_db(UserData=jsondata)
-    print(status)
+    logger.info(status)
     return None
