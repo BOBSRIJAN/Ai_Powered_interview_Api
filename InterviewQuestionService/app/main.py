@@ -14,7 +14,7 @@ logger = logging.getLogger("uvicorn")
 
 def initSubprocess() -> None:
     startConsumer(eventHandler, stop_event)
-    logger.info("worker start....")
+    logger.info("Fast Api custom worker started.")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -26,11 +26,7 @@ async def lifespan(app: FastAPI):
     thread.join(timeout=5)
     terminatedConnection()
 
-app = FastAPI(
-    title="FastAPI MongoEngine App",
-    lifespan=lifespan
-)
-
+app = FastAPI(title="FastAPI MongoEngine App", lifespan=lifespan)
 app.include_router(router)
 
 @app.get("/")

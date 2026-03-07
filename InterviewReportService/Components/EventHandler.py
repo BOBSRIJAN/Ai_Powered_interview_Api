@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.INFO)
 logger: logging = logging.getLogger("python")
 
 # functions Portion's
-def eventHandler(data1: dict | None, data2: dict | None) -> None:
+def eventHandler(data1: dict, data2: dict) -> None:
     """
     Handles the event by processing input data, generating a user report using Gemini AI,
     and sending the report to Kafka and the database.
@@ -24,24 +24,38 @@ def eventHandler(data1: dict | None, data2: dict | None) -> None:
         Returns:
             None
     """
-    prompt = f""" {os.getenv('userReport')} Return ONLY valid JSON with double quotes. Input: data_1={data1} and data_2={data2} """
+    if not data1 and data2:
+        logger.error("Both the parameter Data1 and Data2 are empty.")
+        return None
+
+    prompt = f"""{os.getenv('userReport')} Return ONLY valid JSON with double quotes. Input: data_1={data1} and data_2={data2}"""
+
     response = geminiAi(prompt)
-    
-    if response: 
-        try: 
-            clean = (response.replace("```", "").replace("json", "").strip())
+    jsondata = None
+
+    if response:
+        try:
+            clean = response.strip().removeprefix("```json").removesuffix("```").strip()
             jsondata = json.loads(clean)
+
             jsondata["userid"] = data1["userid"]
             jsondata["sessionid"] = data1["sessionid"]
             jsondata["Questions"] = data1["Questions"]
 
-            actual_answers = jsondata["actualanswer"]   
-            for i, q in enumerate(jsondata["Questions"]):
-                q["actualquestionanswer"] = actual_answers[i]
-            del jsondata["actualanswer"]
-        except Exception as e:
-            logger.exception(f"Exception: {e}")
+            actual_answers = jsondata.get("actualanswer", [])
 
-    status = if_user_report_is_ready_send_to_kafka_and_db(UserData=jsondata)
-    logger.info(status)
+            for i, q in enumerate(jsondata["Questions"]):
+                if i < len(actual_answers):
+                    q["actualquestionanswer"] = actual_answers[i]
+
+            jsondata.pop("actualanswer", None)
+
+        except Exception as e:
+            logger.exception(f"Exception while parsing Gemini response: {e}")
+            return None
+
+    if jsondata:
+        status = if_user_report_is_ready_send_to_kafka_and_db(UserData=jsondata)
+        logger.info(status)
+
     return None

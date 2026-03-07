@@ -35,7 +35,7 @@ async def getFirstSlotQuestion(payload: InitializeInterviewRequest) -> UserSlotO
         response = geminiAi(query)
         if response is None:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Gemini not sending the response")
-        logger.info("Question generated successfully.........")
+        logger.info("Question generated successfully.")
 
         readyToSend = Converter.StrToJson(response.replace("```", "").replace("json", ""))
         readyToSend['userid'] = payload.userid
@@ -59,7 +59,7 @@ async def getFirstSlotQuestion(payload: InitializeInterviewRequest) -> UserSlotO
         response = geminiAi(query)
         if response is None:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Gemini not sending the response")
-        logger.info("Question generated successfully.........")
+        logger.info("Question generated successfully.")
 
         readyToSend = Converter.StrToJson(response.replace("```", "").replace("json", ""))
         readyToSend['userid'] = payload.userid

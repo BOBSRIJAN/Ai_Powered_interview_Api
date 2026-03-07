@@ -43,10 +43,10 @@ def kafkaConsumer():
 def startConsumer(eventHandler, stop_event):
     """Start the Kafka consumer and process messages using the provided event handler."""
     consumer = kafkaConsumer()
-    logger.info("Kafka Consumer started... \nwaiting for messages....")
+    logger.info("Kafka Consumer started waiting for messages.")
     for message in consumer:
         if stop_event.is_set():
-            logger.info("Stopping Kafka consumer loop...")
+            logger.info("Stopping Kafka consumer loop.")
             break
         data = message.value
         eventHandler(data)

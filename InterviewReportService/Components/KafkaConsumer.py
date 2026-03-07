@@ -30,7 +30,7 @@ def kafkaConsumer():
             'userBehavioral',
             bootstrap_servers=os.getenv("KAFKA_BROKER_URL"),
             auto_offset_reset='earliest',
-            enable_auto_commit=True,
+            enable_auto_commit=False,
             group_id='userAnswerGroup',
             value_deserializer=lambda v: json.loads(v.decode('utf-8'))
         )
