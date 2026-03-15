@@ -101,7 +101,7 @@ async def analyzeWithJson(paylode: AnalyzeWithJsonRequest) -> AnalyzeWithJsonRes
         suggestions=readyToSend.get('suggestions')
     ).save()
 
-    return AnalyzeWithDocumentResponse(
+    return AnalyzeWithJsonResponse(
         userid=paylode.userid,
         score=readyToSend.get('score'),
         atsCompatibility=readyToSend.get('atsCompatibility'),
